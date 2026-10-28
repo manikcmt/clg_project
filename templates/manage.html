@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Manage students · StudentDesk{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><p class="eyebrow">RECORDS</p><h1>Find & manage</h1><p class="muted">Search for a student, then edit or delete the record.</p></div>
+  <a class="button primary" href="/ui/students/new">+ Add student</a>
+</div>
+<form class="search-bar" method="get" action="/ui/manage">
+  <input name="search" value="{{ search }}" placeholder="Type a name, roll, registration or email">
+  <button class="button primary" type="submit">Find student</button>
+  {% if search %}<a class="button secondary" href="/ui/manage">Clear</a>{% endif %}
+</form>
+{% if password_updated %}<p class="notice success">Student password updated successfully.</p>{% endif %}
+{% if password_error %}<p class="notice error">Password must be exactly 4 digits (0-9), or the password could not be saved. Please try again.</p>{% endif %}
+<div class="table-card">
+  {% if students %}
+  <div class="table-wrap"><table>
+    <thead><tr><th>Name</th><th>Roll / ID</th><th>Department</th><th>Semester</th><th>Phone</th><th>Change password</th><th>Actions</th></tr></thead>
+    <tbody>{% for student in students %}
+      <tr>
+        <td class="name-cell">{{ student.name }}</td><td>{{ student.roll }}</td><td>{{ student.department or "—" }}</td><td>{{ student.semester or "—" }}</td><td>{{ student.phone_number or "—" }}</td>
+        <td>
+          <form class="manage-password-form" method="post" action="/ui/manage/{{ student.id }}/password" data-confirm="Set a new 4-digit login password for {{ student.name }}?">
+            <input name="password" type="password" required minlength="4" maxlength="4" pattern="[0-9]{4}" inputmode="numeric" autocomplete="new-password" placeholder="4-digit password" aria-label="New password for {{ student.name }}">
+            <button class="small-button" type="submit">Save password</button>
+          </form>
+        </td>
+        <td class="actions"><a class="small-button" href="/ui/students/{{ student.id }}/edit">Edit</a>
+          <form method="post" action="/ui/students/{{ student.id }}/delete" data-confirm="Delete {{ student.name }}?"><button class="small-button danger" type="submit">Delete</button></form>
+        </td>
+      </tr>
+    {% endfor %}</tbody>
+  </table></div>
+  {% else %}<div class="empty"><span>⌕</span><h2>No students found</h2><p>Enter a search term or add a student.</p></div>{% endif %}
+</div>
+{% endblock %}

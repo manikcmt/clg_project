@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Teacher Request Submitted · StudentDesk{% endblock %}
+{% block content %}
+<section class="auth-card">
+  <p class="eyebrow">REQUEST SUBMITTED</p>
+  <h1>Thank you, {{ name }}</h1>
+  <p class="muted">Your Teacher account request is waiting for Admin approval. You can sign in after it is approved.</p>
+  <a class="button primary" href="/login/teacher">Go to Teacher Login</a>
+</section>
+{% endblock %}

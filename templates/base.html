@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Student Manager{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  {% if request.session.get("role") in ["admin", "teacher", "student"] %}
+  <div class="app-shell">
+    {% include "partials/dashboard_sidebar.html" %}
+    <div class="app-content">
+      <div class="app-titlebar">
+        <h1>{% if request.session.get("role") == "admin" %}Student Management System{% else %}Pabna Govt. Polytechnic Institute{% endif %}</h1>
+      </div>
+  {% else %}
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Pabna Government Polytechnic Institute home">
+      <img class="brand-logo" src="/static/images/pgpi-logo.png" alt="">
+      <span>Pabna Government Polytechnic Institute</span>
+    </a>
+    <nav class="public-nav" aria-label="Main navigation">
+        <a href="/teachers">Teacher</a>
+        <a href="/#routine">Routine</a>
+        <a href="/library">Library</a>
+        <a class="public-nav-login" href="/login">Login</a>
+    </nav>
+  </header>
+  {% endif %}
+  <main class="container{% if request.session.get('role') in ['admin', 'teacher', 'student'] %} app-container{% endif %}">{% block content %}{% endblock %}</main>
+  {% if request.session.get("role") in ["admin", "teacher", "student"] %}
+    </div>
+  </div>
+  {% endif %}
+  <footer{% if request.session.get("role") in ["admin", "teacher", "student"] %} class="app-footer"{% endif %}>
+    <a class="creator-link" href="https://www.youtube.com/@SalehinBD" target="_blank" rel="noopener noreferrer" aria-label="SalehinBD YouTube channel">
+      <svg class="youtube-logo" viewBox="0 0 24 17" aria-hidden="true">
+        <path fill="currentColor" d="M23.5 2.7a3 3 0 0 0-2.1-2.1C19.5.1 12 .1 12 .1s-7.5 0-9.4.5A3 3 0 0 0 .5 2.7 31 31 0 0 0 0 8.5a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1 31 31 0 0 0 .5-5.8 31 31 0 0 0-.5-5.8Z"/>
+        <path fill="#fff" d="m9.6 12.1 6.2-3.6-6.2-3.6v7.2Z"/>
+      </svg>
+      <span>SalehinBD - CST_PGPI</span>
+    </a>
+  </footer>
+  <script src="/static/app.js"></script>
+</body>
+</html>

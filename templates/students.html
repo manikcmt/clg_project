@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Students · StudentDesk{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><p class="eyebrow">DIRECTORY</p><h1>Student list</h1><p class="muted">Search and view all student records.</p></div>
+  <div class="button-row student-list-heading-actions">
+    <a class="button student-add-action" href="/ui/students/new"><span aria-hidden="true">＋</span>Add student</a>
+    <a class="button student-download-action" href="/ui/export.xlsx"><span aria-hidden="true">↓</span>Download Excel</a>
+  </div>
+</div>
+{% if created %}<p class="notice success">Student added successfully. You are back on the Student list.</p>{% endif %}
+{% if imported %}<p class="notice success">{{ imported }} student record{{ "" if imported == 1 else "s" }} imported successfully.</p>{% endif %}
+{% if pending_import %}<p class="notice success">{{ pending_import }} student record{{ "" if pending_import == 1 else "s" }} imported to the Authorised List for approval. <a href="/admin/authorised-list">Review imported students →</a></p>{% endif %}
+{% if import_errors %}
+<div class="notice error">
+  <strong>Excel file was not imported. Please fix these issues:</strong>
+  <ul>{% for error in import_errors %}<li>{{ error }}</li>{% endfor %}</ul>
+</div>
+{% endif %}
+<form class="upload-bar" method="post" action="/ui/import" enctype="multipart/form-data">
+  <div>
+    <strong>Import students from Excel</strong>
+    <p>Required columns: Name, Roll, Registration, Email, Age. Add an optional Password column with exactly 4 digits to send those rows to the Authorised List for approval. Format the Excel column as Text to preserve leading zeroes.</p>
+    <a class="button secondary" href="/ui/import-template.xlsx">Download demo Excel file</a>
+  </div>
+  <input name="file" type="file" accept=".xlsx" required>
+  <button class="button primary" type="submit">Upload Excel</button>
+</form>
+<form class="search-bar student-list-search" method="get" action="/ui/students">
+  <input name="search" value="{{ search }}" placeholder="Search name, roll, registration or email">
+  <input type="hidden" name="department" value="{{ department }}">
+  <input type="hidden" name="semester" value="{{ semester }}">
+  <input type="hidden" name="academic_session" value="{{ academic_session }}">
+  <input type="hidden" name="shift" value="{{ shift }}">
+  <button class="button primary" type="submit">Find</button>
+  {% if search %}<a class="button secondary" href="/ui/students?department={{ department|urlencode }}&semester={{ semester|urlencode }}&academic_session={{ academic_session|urlencode }}&shift={{ shift|urlencode }}">Clear search</a>{% endif %}
+</form>
+<form class="search-bar student-list-filters" method="get" action="/ui/students">
+  <input type="hidden" name="search" value="{{ search }}">
+  <select name="department" aria-label="Filter by department"><option value="">All departments</option>{% for item in departments %}<option value="{{ item }}" {% if department == item %}selected{% endif %}>{{ item }}</option>{% endfor %}</select>
+  <select name="semester" aria-label="Filter by semester"><option value="">All semesters</option>{% for item in semesters %}<option value="{{ item }}" {% if semester == item %}selected{% endif %}>{{ item }}</option>{% endfor %}</select>
+  <select name="academic_session" aria-label="Filter by academic session"><option value="">All sessions</option>{% for item in sessions %}<option value="{{ item }}" {% if academic_session == item %}selected{% endif %}>{{ item }}</option>{% endfor %}</select>
+  <select name="shift" aria-label="Filter by shift"><option value="">All shifts</option>{% for item in shifts %}<option value="{{ item }}" {% if shift == item %}selected{% endif %}>{{ item }}</option>{% endfor %}</select>
+  <button class="button primary" type="submit">Apply filters</button>
+  {% if department or semester or academic_session or shift %}<a class="button secondary" href="/ui/students?search={{ search|urlencode }}">Clear filters</a>{% endif %}
+</form>
+<div class="table-card">
+  <div class="table-top"><strong>{{ students|length }} student{{ "" if students|length == 1 else "s" }}</strong><div class="student-list-table-actions"><span>Full profiles · approved accounts only</span><a href="/ui/print?search={{ search|urlencode }}&department={{ department|urlencode }}&semester={{ semester|urlencode }}&academic_session={{ academic_session|urlencode }}&shift={{ shift|urlencode }}">Print list</a></div></div>
+  {% if students %}
+  <div class="table-wrap"><table>
+    <thead><tr><th>Photo</th><th>Name / Roll</th><th>Registration / Student ID</th><th>Department / Semester / Session</th><th>Email / Phone</th><th>Address</th><th>Family contact</th><th>Experience / Work</th></tr></thead>
+    <tbody>{% for student in students %}
+      <tr>
+        <td>{% if student.picture_data %}<img class="student-thumb" src="/ui/students/{{ student.id }}/picture" alt="Student picture">{% else %}<span class="avatar-placeholder">—</span>{% endif %}</td>
+        <td class="name-cell">{{ student.name }}<br><small>{{ student.roll }}</small></td>
+        <td>{{ student.registration }}<br><small>{{ student.student_id or "—" }}</small></td>
+        <td>{{ student.department or "—" }}<br><small>{{ student.semester or "—" }} · {{ student.academic_session or "—" }} · {{ student.shift or "—" }}</small></td>
+        <td>{{ student.email }}<br><small>{{ student.phone_number or "—" }}</small></td>
+        <td>{{ [student.village, student.union_name, student.upazila, student.district]|select|join(", ") or "—" }}<br><small>NID: {{ student.nid or "—" }}</small></td>
+        <td>{{ student.father_name or "—" }} / {{ student.father_phone or "—" }}<br>{{ student.mother_name or "—" }}</td>
+        <td>{{ student.working_place or "—" }}<br><small>{{ student.experience or "—" }}</small></td>
+      </tr>
+    {% endfor %}</tbody>
+  </table></div>
+  {% else %}<div class="empty"><span>⌕</span><h2>No students found</h2><p>Try a different search or add a student.</p><a class="button primary" href="/ui/students/new">Add student</a></div>{% endif %}
+</div>
+{% endblock %}

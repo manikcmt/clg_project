@@ -1,0 +1,5 @@
+.session_secret
+students.db
+__pycache__/
+*.py[cod]
+.env

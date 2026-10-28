@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}Teacher Profile · StudentDesk{% endblock %}
+{% block content %}
+<div class="student-form-heading teacher-profile-title">
+  <h1>Teacher Profile</h1>
+</div>
+<div class="student-form-wrap teacher-profile-wrap">
+  {% if updated %}<p class="notice success">Profile updated successfully.</p>{% endif %}
+  {% if error == "invalid" %}<p class="notice error">Check the required fields, department, website address, and qualification passing years.</p>
+  {% elif error == "picture" %}<p class="notice error">Upload a valid JPG, PNG, or WEBP photo smaller than 5 MB.</p>
+  {% elif error == "duplicate" %}<p class="notice error">That email address is already used by another teacher.</p>
+  {% elif error == "save" %}<p class="notice error">Could not save your profile. Please try again.</p>{% endif %}
+  <form class="form-card student-form-card teacher-profile-form" method="post" enctype="multipart/form-data" action="/teacher/profile">
+    <section class="teacher-profile-section">
+      <div class="teacher-section-heading"><span>01</span><div><h2>Personal Info</h2><p>Only you and authorized administrators can view your private contact details.</p></div></div>
+      <div class="form-grid">
+        <label>Name<input name="name" required maxlength="255" value="{{ teacher.name }}"></label>
+        <label>Designation
+          <select name="designation" required>
+            <option value="">Select designation</option>
+            {% for designation in designations %}<option value="{{ designation }}" {% if teacher.designation == designation %}selected{% endif %}>{{ designation }}</option>{% endfor %}
+          </select>
+        </label>
+        <label>Department
+          <select name="department">
+            <option value="">Select department</option>
+            {% for department in departments %}<option value="{{ department }}" {% if teacher.department == department %}selected{% endif %}>{{ department }}</option>{% endfor %}
+          </select>
+        </label>
+        <label>Personal webpage<input name="personal_website" type="url" maxlength="500" value="{{ teacher.personal_website or '' }}" placeholder="https://example.com"></label>
+        <label>E-mail<input name="email" type="email" required maxlength="255" value="{{ teacher.email }}"></label>
+        <label>Phone<input name="phone" type="tel" maxlength="50" value="{{ teacher.phone or '' }}"></label>
+        <label class="full-width">Picture
+          <span class="picture-preview">
+            {% if teacher.picture_data %}<img src="/teachers/{{ teacher.id }}/photo" alt="Your profile photo">{% else %}<span class="avatar-placeholder">Photo</span>{% endif %}
+            <span>Choose a JPG, PNG, or WEBP image (up to 5 MB).</span>
+          </span>
+          <input name="picture" type="file" accept="image/jpeg,image/png,image/webp">
+        </label>
+      </div>
+    </section>
+
+    <section class="teacher-profile-section">
+      <div class="teacher-section-heading"><span>02</span><div><h2>Academic Qualification</h2><p>Add each qualification and its passing year.</p></div></div>
+      <div class="repeatable-list" data-list="qualification">
+        {% for item in qualifications %}
+        <div class="repeatable-row">
+          <label>Qualification<select name="qualification_level">{% for level in qualification_levels %}<option value="{{ level }}" {% if item.level == level %}selected{% endif %}>{{ level }}</option>{% endfor %}</select></label>
+          <label>Passing Year<input name="qualification_year" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required value="{{ item.passing_year }}"></label>
+          <label>Institution<input name="qualification_institution" maxlength="255" value="{{ item.institution or '' }}"></label>
+          <label>Subject / discipline<input name="qualification_subject" maxlength="255" value="{{ item.subject or '' }}"></label>
+          <button class="repeatable-remove" type="button" aria-label="Remove qualification">Remove</button>
+        </div>
+        {% endfor %}
+      </div>
+      <button class="repeatable-add" type="button" data-add="qualification">+ Add qualification</button>
+    </section>
+
+    <section class="teacher-profile-section">
+      <div class="teacher-section-heading"><span>03</span><div><h2>Training Experience</h2><p>Add multiple training programs you have completed.</p></div></div>
+      <div class="repeatable-list" data-list="training">
+        {% for item in training_experiences %}
+        <div class="repeatable-row">
+          <label>Training name<input name="training_name" maxlength="255" required value="{{ item.name }}"></label>
+          <label>Organization<input name="training_organization" maxlength="255" value="{{ item.organization or '' }}"></label>
+          <label>Period / year<input name="training_period" maxlength="100" value="{{ item.period or '' }}"></label>
+          <label>Details<input name="training_details" maxlength="2000" value="{{ item.details or '' }}"></label>
+          <button class="repeatable-remove" type="button" aria-label="Remove training experience">Remove</button>
+        </div>
+        {% endfor %}
+      </div>
+      <button class="repeatable-add" type="button" data-add="training">+ Add training experience</button>
+    </section>
+
+    <section class="teacher-profile-section">
+      <div class="teacher-section-heading"><span>04</span><div><h2>Training Area</h2><p>Add multiple areas of training expertise.</p></div></div>
+      <div class="repeatable-list" data-list="area">
+        {% for item in training_areas %}
+        <div class="repeatable-row repeatable-row-single">
+          <label>Training area<input name="training_area" maxlength="255" required value="{{ item.name }}"></label>
+          <button class="repeatable-remove" type="button" aria-label="Remove training area">Remove</button>
+        </div>
+        {% endfor %}
+      </div>
+      <button class="repeatable-add" type="button" data-add="area">+ Add training area</button>
+    </section>
+
+    <section class="teacher-profile-section">
+      <div class="teacher-section-heading"><span>05</span><div><h2>Previous Employment</h2><p>Add each previous workplace and position.</p></div></div>
+      <div class="repeatable-list" data-list="employment">
+        {% for item in employments %}
+        <div class="repeatable-row">
+          <label>Organization<input name="employment_organization" maxlength="255" required value="{{ item.organization }}"></label>
+          <label>Position<input name="employment_position" maxlength="255" value="{{ item.position or '' }}"></label>
+          <label>Period<input name="employment_period" maxlength="100" value="{{ item.period or '' }}"></label>
+          <label>Details<input name="employment_details" maxlength="2000" value="{{ item.details or '' }}"></label>
+          <button class="repeatable-remove" type="button" aria-label="Remove employment">Remove</button>
+        </div>
+        {% endfor %}
+      </div>
+      <button class="repeatable-add" type="button" data-add="employment">+ Add previous employment</button>
+    </section>
+
+    <div class="button-row"><button class="button primary" type="submit">Save profile</button><a class="button secondary" href="/teacher/dashboard">Back to dashboard</a></div>
+  </form>
+</div>
+
+<template id="qualification-row-template">
+  <div class="repeatable-row">
+    <label>Qualification<select name="qualification_level">{% for level in qualification_levels %}<option value="{{ level }}">{{ level }}</option>{% endfor %}</select></label>
+    <label>Passing Year<input name="qualification_year" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required></label>
+    <label>Institution<input name="qualification_institution" maxlength="255"></label>
+    <label>Subject / discipline<input name="qualification_subject" maxlength="255"></label>
+    <button class="repeatable-remove" type="button" aria-label="Remove qualification">Remove</button>
+  </div>
+</template>
+<template id="training-row-template">
+  <div class="repeatable-row">
+    <label>Training name<input name="training_name" maxlength="255" required></label>
+    <label>Organization<input name="training_organization" maxlength="255"></label>
+    <label>Period / year<input name="training_period" maxlength="100"></label>
+    <label>Details<input name="training_details" maxlength="2000"></label>
+    <button class="repeatable-remove" type="button" aria-label="Remove training experience">Remove</button>
+  </div>
+</template>
+<template id="area-row-template">
+  <div class="repeatable-row repeatable-row-single">
+    <label>Training area<input name="training_area" maxlength="255" required></label>
+    <button class="repeatable-remove" type="button" aria-label="Remove training area">Remove</button>
+  </div>
+</template>
+<template id="employment-row-template">
+  <div class="repeatable-row">
+    <label>Organization<input name="employment_organization" maxlength="255" required></label>
+    <label>Position<input name="employment_position" maxlength="255"></label>
+    <label>Period<input name="employment_period" maxlength="100"></label>
+    <label>Details<input name="employment_details" maxlength="2000"></label>
+    <button class="repeatable-remove" type="button" aria-label="Remove employment">Remove</button>
+  </div>
+</template>
+<script>
+document.querySelectorAll("[data-add]").forEach((button) => {
+  button.addEventListener("click", () => {
+    const kind = button.dataset.add;
+    const row = document.querySelector(`#${kind}-row-template`).content.cloneNode(true);
+    button.previousElementSibling.append(row);
+  });
+});
+document.querySelector(".teacher-profile-form").addEventListener("click", (event) => {
+  if (event.target.matches(".repeatable-remove")) {
+    event.target.closest(".repeatable-row").remove();
+  }
+});
+</script>
+{% endblock %}

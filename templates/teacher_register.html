@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Teacher Account Request · StudentDesk{% endblock %}
+{% block content %}
+<section class="auth-card">
+  <p class="eyebrow">TEACHER ACCOUNT</p>
+  <h1>Request Teacher Login</h1>
+  <p class="muted">An Admin must approve your account before you can sign in.</p>
+  {% if error %}<p class="notice error">{{ error }}</p>{% endif %}
+  <form method="post" action="/teacher/register" class="auth-form">
+    <label>Full name<input name="name" required maxlength="255" autocomplete="name"></label>
+    <label>Username<input name="username" required minlength="3" maxlength="100" autocomplete="username"></label>
+    <label>Email address<input name="email" type="email" required maxlength="255" autocomplete="email"></label>
+    <label>Password<input name="password" type="password" required minlength="6" maxlength="6" pattern="[0-9]{6}" inputmode="numeric" autocomplete="new-password"><small>Choose exactly 6 digits (0-9).</small></label>
+    <label>Confirm password<input name="confirm_password" type="password" required minlength="6" maxlength="6" pattern="[0-9]{6}" inputmode="numeric" autocomplete="new-password"></label>
+    <button class="button primary" type="submit">Send account request</button>
+  </form>
+  <p class="auth-footnote"><a href="/login/teacher">Back to Teacher Login</a></p>
+</section>
+{% endblock %}

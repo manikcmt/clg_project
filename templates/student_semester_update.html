@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Semester Update Request · StudentDesk{% endblock %}
+{% block content %}
+<div class="student-form-heading">
+  <h1>Semester Update Request</h1>
+  <p class="muted">Request an update to your semester. An administrator must approve it before your profile changes.</p>
+</div>
+<div class="student-form-wrap semester-request-wrap">
+  {% if requested %}<p class="notice success">Your semester update request was sent to the Admin for approval.</p>{% endif %}
+  {% if error == "invalid" %}<p class="notice error">Please select a valid semester.</p>
+  {% elif error == "same" %}<p class="notice error">The selected semester is already your current semester.</p>
+  {% elif error == "lower" %}<p class="notice error">You can only request a semester higher than your current semester.</p>
+  {% elif error == "pending" %}<p class="notice error">You already have a semester update request waiting for Admin approval.</p>{% endif %}
+  {% if pending_request %}
+  <section class="portal-list semester-pending-card">
+    <div class="table-top"><strong>Request awaiting approval</strong><span class="teacher-status teacher-status-pending">Pending</span></div>
+    <div class="semester-request-details">
+      <div><span>Current semester</span><strong>{{ pending_request.current_semester }}</strong></div>
+      <span class="semester-request-arrow" aria-hidden="true">→</span>
+      <div><span>Requested semester</span><strong>{{ pending_request.requested_semester }}</strong></div>
+      <p>Admin approval is required. Your current semester will remain unchanged until the request is approved.</p>
+    </div>
+  </section>
+  {% else %}
+  <form class="form-card semester-request-form" method="post" action="/student/semester-update">
+    <div class="teacher-section-heading">
+      <span aria-hidden="true">↻</span>
+      <div><h2>Request a semester change</h2><p>Your request will appear as the third section in Admin's Authorised List.</p></div>
+    </div>
+    <div class="semester-request-details">
+      <div><span>Current semester</span><strong>{{ student.semester or "Not set" }}</strong></div>
+      <span class="semester-request-arrow" aria-hidden="true">→</span>
+      <label>New semester
+        <select name="requested_semester" required>
+          <option value="">Select semester</option>
+          {% for semester in semesters %}<option value="{{ semester }}">{{ semester }}</option>{% endfor %}
+        </select>
+      </label>
+    </div>
+    <div class="subject-form-footer"><p>Your profile changes only after Admin approval.</p><button class="button primary" type="submit">Send request</button></div>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

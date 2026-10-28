@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Home · Pabna Govt. Polytechnic Institute{% endblock %}
+{% block content %}
+<section class="department-home">
+  <div class="home-campus-hero">
+    <div class="home-campus-copy">
+      <p class="home-campus-eyebrow">WELCOME TO PGPI</p>
+      <h1>Pabna Government Polytechnic Institute</h1>
+      <p>Explore the institute community and student departments.</p>
+      <a class="home-campus-button" href="/login">Access the portal <span aria-hidden="true">→</span></a>
+    </div>
+    <div class="home-campus-totals">
+      <div class="home-campus-total" aria-label="{{ total_teachers }} total teachers">
+        <strong>{{ total_teachers }}</strong>
+        <span>Total teachers</span>
+      </div>
+      <div class="home-campus-total" aria-label="{{ total_students }} total students">
+        <strong>{{ total_students }}</strong>
+        <span>Total students</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="department-card home-department-card">
+    <div class="department-gallery">
+      {% for department, logo, count in department_counts %}
+      <a class="department-tile" href="/teachers/{{ department|urlencode }}">
+        <span class="department-logo">{{ logo }}</span>
+        <div class="department-info">
+          <strong>{{ department }}</strong>
+          <span>{{ count }} student{{ "" if count == 1 else "s" }}</span>
+        </div>
+        <span class="department-tile-arrow" aria-hidden="true">→</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="home-info-grid">
+    <section class="home-info-card" id="routine">
+      <span class="home-info-icon" aria-hidden="true">01</span>
+      <div><p class="eyebrow">ACADEMIC</p><h2>Class Routine</h2><p>Routine information will be available here soon.</p></div>
+    </section>
+    <a class="home-info-card home-library-link" id="library" href="/library">
+      <span class="home-info-icon" aria-hidden="true">02</span>
+      <div><p class="eyebrow">CAMPUS</p><h2>Institute Library</h2><p>Browse departments, teachers, subjects, and class presentations.</p></div>
+      <span class="home-info-arrow" aria-hidden="true">→</span>
+    </a>
+  </div>
+</section>
+{% endblock %}

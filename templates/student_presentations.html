@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Class Presentations · StudentDesk{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><p class="eyebrow">MY LEARNING MATERIALS</p><h1>Class Presentations</h1><p class="muted">Presentations shared for subjects you are enrolled in.</p></div>
+</div>
+<form class="search-bar presentation-filter" method="get" action="/student/presentations">
+  <select name="subject_id" aria-label="Filter by subject">
+    <option value="">All enrolled subjects</option>
+    {% for subject in subjects %}<option value="{{ subject.id }}" {% if subject_id == subject.id %}selected{% endif %}>{{ subject.name }} · {{ subject.code }}</option>{% endfor %}
+  </select>
+  <button class="button primary" type="submit">Filter</button>
+  {% if subject_id %}<a class="button secondary" href="/student/presentations">Clear</a>{% endif %}
+</form>
+<div class="table-card">
+  <div class="table-top"><strong>Available presentations</strong><span>{{ presentations|length }} file{{ "" if presentations|length == 1 else "s" }}</span></div>
+  {% if presentations %}
+  <div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Subject</th><th>Presentation</th><th>File</th><th>Download</th></tr></thead>
+    <tbody>{% for presentation, subject in presentations %}
+    <tr><td>{{ presentation.presentation_date.strftime("%d %b %Y") }}</td><td>{{ subject.name }} ({{ subject.code }})</td><td class="name-cell">{{ presentation.title }}</td><td>{{ presentation.filename }}</td><td><a class="small-button" href="/student/presentations/{{ presentation.id }}/download">Download</a></td></tr>
+    {% endfor %}</tbody>
+  </table></div>
+  {% else %}<div class="empty"><h2>No presentations available</h2><p>Teachers' uploads for your approved subject enrollments will appear here.</p></div>{% endif %}
+</div>
+{% endblock %}

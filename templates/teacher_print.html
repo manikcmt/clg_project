@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Print Teacher List · StudentDesk{% endblock %}
+{% block content %}
+<div class="page-heading no-print">
+  <div><p class="eyebrow">TEACHER ACCOUNTS</p><h1>Print Teacher List</h1><p class="muted">{% if search %}Filtered by: {{ search }}{% else %}All teacher accounts{% endif %}</p></div>
+  <div class="button-row">
+    <button class="button primary" type="button" onclick="window.print()">Print</button>
+    <a class="button secondary" href="/admin/teachers{% if search %}?search={{ search|urlencode }}{% endif %}">Back to Manage Teacher</a>
+  </div>
+</div>
+<div class="table-card">
+  <div class="table-top"><strong>Teacher accounts</strong><span>{{ teachers|length }} teacher{{ "" if teachers|length == 1 else "s" }}</span></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>#</th><th>Name</th><th>Username</th><th>Email</th><th>Department</th><th>Designation</th><th>Status</th></tr></thead>
+    <tbody>{% for teacher in teachers %}
+    <tr><td>{{ loop.index }}</td><td class="name-cell">{{ teacher.name }}</td><td>{{ teacher.username }}</td><td>{{ teacher.email }}</td><td>{{ teacher.department or "Not assigned" }}</td><td>{{ teacher.designation or "Not set" }}</td><td>{{ teacher.account_status|title }}</td></tr>
+    {% else %}<tr><td colspan="7">No teacher accounts found.</td></tr>{% endfor %}</tbody>
+  </table></div>
+</div>
+{% endblock %}

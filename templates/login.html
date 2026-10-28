@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ role }} Login · StudentDesk{% endblock %}
+{% block content %}
+<section class="auth-card">
+  <p class="eyebrow">SECURE SIGN IN</p>
+  <h1>{{ role }} Login</h1>
+  <p class="muted">Enter your {{ "roll number" if role == "Student" else "username" }} and password.</p>
+  {% if error %}<p class="notice error">{{ error }}</p>{% endif %}
+  <form method="post" action="{{ action }}" class="auth-form">
+    {% if role != "Student" %}
+    <label>Username<input name="username" required autocomplete="username"></label>
+    {% else %}
+    <label>Roll number<input name="roll" required autocomplete="username"></label>
+    {% endif %}
+    <label>Password<input name="password" type="password" required autocomplete="current-password"></label>
+    <button class="button primary" type="submit">Login</button>
+  </form>
+  {% if role == "Student" %}
+  <p class="auth-footnote">New student? <a href="/student/register">New Student Registration</a></p>
+  {% elif role == "Teacher" %}
+  <p class="auth-footnote">New teacher? <a href="/teacher/register">Request a Teacher Account</a>. Admin approval is required before login.</p>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Teachers by Department · Pabna Government Polytechnic Institute{% endblock %}
+{% block content %}
+<section class="public-teacher-page">
+  <div class="public-teacher-heading">
+    <p class="eyebrow">OUR FACULTY</p>
+    <h1>Teachers by Department</h1>
+    <p class="muted">Choose a department to view its teachers.</p>
+  </div>
+  <div class="public-department-grid">
+    {% for department, logo, count in departments %}
+    <a class="public-department-card" href="/teachers/{{ department|urlencode }}">
+      <span class="department-logo">{{ logo }}</span>
+      <span class="public-department-copy"><strong>{{ department }}</strong><small>{{ count }} teacher{{ "" if count == 1 else "s" }}</small></span>
+      <span class="department-tile-arrow" aria-hidden="true">→</span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

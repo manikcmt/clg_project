@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Edit Teacher · StudentDesk{% endblock %}
+{% block content %}
+<div class="student-form-heading">
+  <h1>Edit Teacher</h1>
+  <p class="muted">Update teacher details or set a new login password.</p>
+</div>
+<div class="student-form-wrap">
+  <div class="table-card admin-teacher-private-profile">
+    <div class="table-top"><strong>Private profile details</strong><span>Visible only to Admin and this teacher</span></div>
+    <div class="teacher-admin-profile-content">
+      <section><h2>Contact details</h2><p><strong>Phone:</strong> {{ teacher.phone or "Not provided" }}</p><p><strong>Personal webpage:</strong> {% if teacher.personal_website %}<a href="{{ teacher.personal_website }}" target="_blank" rel="noopener noreferrer">{{ teacher.personal_website }}</a>{% else %}Not provided{% endif %}</p></section>
+      <section><h2>Academic qualification</h2>
+        {% if qualifications %}<ul>{% for item in qualifications %}<li><strong>{{ item.level }}</strong> · {{ item.passing_year }}{% if item.institution %} · {{ item.institution }}{% endif %}{% if item.subject %} · {{ item.subject }}{% endif %}</li>{% endfor %}</ul>{% else %}<p>No qualifications added.</p>{% endif %}
+      </section>
+      <section><h2>Training experience</h2>
+        {% if training_experiences %}<ul>{% for item in training_experiences %}<li><strong>{{ item.name }}</strong>{% if item.organization %} · {{ item.organization }}{% endif %}{% if item.period %} · {{ item.period }}{% endif %}{% if item.details %} — {{ item.details }}{% endif %}</li>{% endfor %}</ul>{% else %}<p>No training experience added.</p>{% endif %}
+      </section>
+      <section><h2>Training areas</h2>
+        {% if training_areas %}<ul>{% for item in training_areas %}<li>{{ item.name }}</li>{% endfor %}</ul>{% else %}<p>No training areas added.</p>{% endif %}
+      </section>
+      <section><h2>Previous employment</h2>
+        {% if employments %}<ul>{% for item in employments %}<li><strong>{{ item.organization }}</strong>{% if item.position %} · {{ item.position }}{% endif %}{% if item.period %} · {{ item.period }}{% endif %}{% if item.details %} — {{ item.details }}{% endif %}</li>{% endfor %}</ul>{% else %}<p>No previous employment added.</p>{% endif %}
+      </section>
+    </div>
+  </div>
+  {% if error == "duplicate" %}<p class="notice error">That username or email is already used by another teacher.</p>
+  {% elif error == "password" %}<p class="notice error">Password must contain exactly 6 digits (0-9).</p>
+  {% elif error == "invalid" %}<p class="notice error">Enter a valid name, username, and email address.</p>
+  {% elif error == "picture" %}<p class="notice error">Upload a valid JPG, PNG, or WEBP image smaller than 5 MB.</p>
+  {% elif error == "save" %}<p class="notice error">Could not save the changes. Please try again.</p>{% endif %}
+  <form class="form-card student-form-card" method="post" enctype="multipart/form-data" action="/admin/teachers/{{ teacher.id }}/edit">
+    <div class="form-grid">
+      <label>Full name
+        <input name="name" required maxlength="255" value="{{ teacher.name }}">
+      </label>
+      <label>Username
+        <input name="username" required minlength="3" maxlength="100" value="{{ teacher.username }}">
+      </label>
+      <label>Email address
+        <input name="email" type="email" required maxlength="255" value="{{ teacher.email }}">
+      </label>
+      <label>Department
+        <select name="department">
+          <option value="">Not assigned</option>
+          {% for department in departments %}
+          <option value="{{ department }}" {% if teacher.department == department %}selected{% endif %}>{{ department }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Designation / position
+        <select name="designation">
+          <option value="">Not assigned</option>
+          {% for designation in designations %}
+          <option value="{{ designation }}" {% if teacher.designation == designation %}selected{% endif %}>{{ designation }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Account status
+        <input value="{{ teacher.account_status|title }}" readonly>
+      </label>
+      <label class="full-width">Teacher photo
+        {% if teacher.picture_data %}<span class="picture-preview"><img src="/admin/teachers/{{ teacher.id }}/photo" alt="Current photo of {{ teacher.name }}">Current profile photo</span>{% endif %}
+        <input name="picture" type="file" accept="image/jpeg,image/png,image/webp">
+        <small>Optional JPG, PNG, or WEBP image; maximum size 5 MB. A new photo replaces the current photo.</small>
+        {% if teacher.picture_data %}<span><input name="remove_picture" type="checkbox" value="1"> Remove current photo</span>{% endif %}
+      </label>
+      <label class="full-width">New password (optional)
+        <input name="password" type="password" minlength="6" maxlength="6" pattern="[0-9]{6}" inputmode="numeric" autocomplete="new-password" placeholder="Leave blank to keep current password">
+        <small>If changing: exactly 6 digits (0-9). It will be stored as a secure hash.</small>
+      </label>
+    </div>
+    <div class="button-row">
+      <button class="button primary" type="submit">Save changes</button>
+      <a class="button secondary" href="/admin/teachers">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

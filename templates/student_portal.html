@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Student Dashboard · StudentDesk{% endblock %}
+{% block content %}
+<div class="dashboard-layout">
+  <div class="dashboard-main">
+    <div class="page-heading">
+      <div>
+        <p class="eyebrow">STUDENT DASHBOARD</p>
+        <h1>Welcome, {{ student.name }}</h1>
+        <p class="muted">{{ student.department or "Department not set" }} · Roll {{ student.roll }}</p>
+      </div>
+    </div>
+    {% if request.query_params.get("profile_updated") == "1" %}
+    <p class="notice success">Your profile was updated successfully.</p>
+    {% endif %}
+    <section class="portal-profile">
+      <div class="portal-profile-heading">
+        <div>
+          <h2>My Profile</h2>
+          <p class="muted">{{ student.working_place or "Working place not added" }}</p>
+        </div>
+        <a class="button secondary" href="/portal/profile/edit">Edit profile</a>
+      </div>
+      <div class="profile-grid">
+        {% if student.picture_data %}
+        <div class="profile-picture-card">
+          <img src="/portal/profile/picture" alt="Your profile picture">
+        </div>
+        {% endif %}
+        <div><span>Department</span><strong>{{ student.department or "—" }}</strong></div>
+        <div><span>Semester</span><strong>{{ student.semester or "—" }}</strong></div>
+        <div><span>Session</span><strong>{{ student.academic_session or "—" }}</strong></div>
+        <div><span>Email</span><strong>{{ student.email or "—" }}</strong></div>
+        <div><span>My phone</span><strong>{{ student.phone_number or "—" }}</strong></div>
+        <div><span>Working place</span><strong>{{ student.working_place or "—" }}</strong></div>
+        <div class="profile-wide"><span>Experience</span><strong>{{ student.experience or "—" }}</strong></div>
+      </div>
+    </section>
+    <section class="portal-list student-enrolled-subjects">
+      <div class="table-top">
+        <strong>My Enrolled Subjects</strong>
+        <div class="button-row">
+          <span>{{ enrolled_subjects|length }} approved subject{{ "" if enrolled_subjects|length == 1 else "s" }}</span>
+          <a class="small-button" href="/student/subjects">Browse all semesters</a>
+        </div>
+      </div>
+      {% if enrolled_subjects %}
+      <div class="student-subject-card-grid">
+        {% for subject, teacher in enrolled_subjects %}
+        <article class="student-enrolled-subject-card">
+          <div class="student-enrolled-subject-title">
+            <div><p class="eyebrow">{{ subject.code }}</p><h2>{{ subject.name }}</h2></div>
+            <span class="excel-password-ready">Enrolled</span>
+          </div>
+          <div class="student-enrolled-subject-meta">
+            <span><strong>Department</strong>{{ subject.department }}</span>
+            <span><strong>Semester</strong>{{ subject.semester }}</span>
+            <span><strong>Teacher</strong>{{ teacher.name }}</span>
+            <span><strong>Designation</strong>{{ teacher.designation or "Teacher" }}</span>
+          </div>
+          <p class="student-enrolled-subject-description">{{ subject.description or "No additional subject details have been added yet." }}</p>
+          <a class="small-button" href="/student/presentations?subject_id={{ subject.id }}">View subject presentations</a>
+        </article>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty student-no-subjects">
+        <h2>No approved subject enrollments yet</h2>
+        <p>Browse subjects across all semesters in your department and request enrollment. Once approved, the subject materials will appear here.</p>
+        <a class="button primary" href="/student/subjects">Browse all semesters</a>
+      </div>
+      {% endif %}
+    </section>
+    <section class="portal-list">
+      <div class="table-top portal-list-heading">
+        <div>
+          <strong>Students in {{ student.department or "your department" }}</strong>
+          <small>{{ selected_semester or "All semesters" }}</small>
+        </div>
+        <form method="get" action="/student/dashboard" class="semester-filter">
+          <label for="semester-filter">Semester</label>
+          <select id="semester-filter" name="semester" onchange="this.form.submit()">
+            <option value="">All semesters</option>
+            {% for item in semesters %}
+            <option value="{{ item }}" {% if selected_semester == item %}selected{% endif %}>{{ item }}</option>
+            {% endfor %}
+          </select>
+        </form>
+        <span>{{ classmates|length }} student{{ "" if classmates|length == 1 else "s" }}</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Name</th><th>Semester</th><th>Roll No.</th><th>Address</th><th>Email</th><th>Shift</th></tr></thead>
+          <tbody>{% for classmate in classmates %}
+          <tr>
+            <td class="name-cell">{{ classmate.name }}{% if classmate.id == student.id %} <small>(You)</small>{% endif %}</td>
+            <td>{{ classmate.semester or "—" }}</td>
+            <td>{{ classmate.roll }}</td>
+            <td>{{ [classmate.village, classmate.union_name, classmate.upazila, classmate.district]|select|join(", ") or "—" }}</td>
+            <td>{{ classmate.email or "—" }}</td>
+            <td>{{ classmate.shift or "—" }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6">No students found in this department and semester.</td></tr>
+          {% endfor %}</tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}

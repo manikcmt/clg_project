@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Institute Library · Pabna Government Polytechnic Institute{% endblock %}
+{% block content %}
+<section class="public-teacher-page public-library-page">
+  <a class="public-back-link" href="/">← Home</a>
+  <div class="public-teacher-heading">
+    <p class="eyebrow">ACADEMIC LIBRARY</p>
+    <h1>Departments, Teachers & Subjects</h1>
+    <p class="muted">Choose a subject to see its class presentations. Presentation downloads are available to students enrolled in that subject.</p>
+  </div>
+  {% if department_groups %}
+  <div class="public-library-departments">
+    {% for group in department_groups %}
+    <section class="public-library-department">
+      <h2>{{ group.name }}</h2>
+      <div class="public-library-teachers">
+        {% for entry in group.teachers %}
+        <article class="public-library-teacher">
+          <div class="public-library-teacher-heading">
+            {% if entry.teacher.picture_data and entry.teacher.picture_type %}
+            <img class="public-library-teacher-photo" src="/teachers/{{ entry.teacher.id }}/photo" alt="" loading="lazy">
+            {% else %}
+            <span class="public-library-teacher-avatar" aria-hidden="true">{{ entry.teacher.name[:1]|upper }}</span>
+            {% endif %}
+            <div><h3>{{ entry.teacher.name }}</h3><p>{{ entry.teacher.designation or "Teacher" }}</p></div>
+          </div>
+          <div class="public-library-subjects">
+            {% for subject in entry.subjects %}
+            <a class="public-library-subject" href="/library/subjects/{{ subject.id }}">
+              <span><strong>{{ subject.name }}</strong><small>{{ subject.semester }} · {{ subject.code }}</small></span>
+              <span aria-hidden="true">→</span>
+            </a>
+            {% endfor %}
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+    </section>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="public-teacher-empty"><h2>No subjects are available yet</h2><p>Active subjects from approved teachers will appear here.</p></div>
+  {% endif %}
+</section>
+{% endblock %}

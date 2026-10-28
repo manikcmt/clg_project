@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Enroll in Subject · StudentDesk{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">TEACHER-CREATED SUBJECTS</p><h1>Request Subject Enrollment</h1><p class="muted">Browse active subjects across all departments and semesters. Select one or more subjects to send enrollment requests.</p></div></div>
+{% if requested %}<p class="notice success">{{ requested_count }} enrollment request{{ "" if requested_count == "1" else "s" }} sent to the teacher{{ "" if requested_count == "1" else "s" }}.</p>{% endif %}
+{% if enrolled %}<p class="notice success">You are now enrolled. Subject materials are available from your student profile.</p>{% endif %}
+{% if error == "selection" %}<p class="notice error">Select at least one subject to send an enrollment request.</p>
+{% elif error == "subject" %}<p class="notice error">One or more selected subjects are no longer available. Refresh and try again.</p>{% endif %}
+<section class="portal-list">
+  <div class="table-top"><strong>Teacher-created subjects across all departments</strong><span>{{ subjects|length }} subject{{ "" if subjects|length == 1 else "s" }}</span></div>
+  {% if subjects %}<form method="post" action="/student/subjects/enroll-selected"><div class="bulk-enrollment-toolbar student-subject-enrollment-toolbar"><label class="select-all-label"><input type="checkbox" data-select-all-enrollments> Select all available subjects</label><button class="button primary" type="submit">Request selected enrollment</button></div><div class="table-wrap"><table><thead><tr><th><span class="sr-only">Select</span></th><th>Department</th><th>Semester</th><th>Subject</th><th>Code</th><th>Teacher</th><th>Description</th><th>Enrollment</th></tr></thead><tbody>
+  {% for subject, teacher in subjects %}
+  {% set enrollment = enrollment_by_subject.get(subject.id) %}
+  <tr><td>{% if subject.is_active and (not enrollment or enrollment.status == "rejected") %}<input type="checkbox" name="subject_ids" value="{{ subject.id }}" data-enrollment-select aria-label="Select {{ subject.name }}">{% endif %}</td><td>{{ subject.department }}</td><td>{{ subject.semester }}</td><td class="name-cell">{{ subject.name }}</td><td>{{ subject.code }}</td><td>{{ teacher.name }}{% if teacher.designation %}<br><small>{{ teacher.designation }}</small>{% endif %}</td><td>{{ subject.description or "—" }}</td><td>
+    {% if not subject.is_active %}<span class="teacher-status teacher-status-inactive">Deactivated</span>
+    {% elif enrollment and enrollment.status == "approved" %}<span class="excel-password-ready">Enrolled</span>
+    {% elif enrollment and enrollment.status == "pending" %}<span>Request pending</span>
+    {% else %}{{ "Rejected · select to request again" if enrollment else "Available to request" }}{% endif %}
+  </td></tr>
+  {% endfor %}
+  </tbody></table></div></form>{% else %}<div class="empty"><h2>No teacher-created subjects available</h2><p>When a teacher creates a subject, it will appear here and you can request enrollment.</p></div>{% endif %}
+</section>
+{% endblock %}

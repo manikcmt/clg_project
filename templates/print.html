@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Print student list · StudentDesk{% endblock %}
+{% block content %}
+<div class="page-heading no-print">
+  <div><p class="eyebrow">REPORT</p><h1>Student list</h1><p class="muted">Print this page or download the records as an Excel workbook.</p></div>
+  <div class="button-row"><button class="button primary" onclick="window.print()">Print list</button><a class="button secondary" href="/ui/export.xlsx?search={{ search|urlencode }}">Download Excel</a></div>
+</div>
+<form class="search-bar no-print" method="get" action="/ui/print">
+  <input name="search" value="{{ search }}" placeholder="Search students before printing">
+  <input type="hidden" name="department" value="{{ department }}">
+  <input type="hidden" name="semester" value="{{ semester }}">
+  <input type="hidden" name="academic_session" value="{{ academic_session }}">
+  <input type="hidden" name="shift" value="{{ shift }}">
+  <button class="button primary" type="submit">Search</button>
+</form>
+<section class="table-card print-card">
+  <div class="table-top"><strong>Student records</strong><span>{{ students|length }} student{{ "" if students|length == 1 else "s" }}</span></div>
+  {% if students %}<div class="table-wrap"><table>
+    <thead><tr><th>Photo</th><th>Name</th><th>Roll</th><th>Registration</th><th>Email</th><th>Age</th><th>Phone</th><th>Father</th><th>Father phone</th><th>Mother</th><th>District</th><th>Upazila</th><th>Union</th><th>Village</th><th>Department</th><th>Semester</th><th>Session</th><th>Student ID</th><th>NID</th><th>Date of birth</th><th>Shift</th></tr></thead>
+    <tbody>{% for student in students %}<tr><td>{% if student.picture_data %}<img class="print-thumb" src="/ui/students/{{ student.id }}/picture" alt="">{% endif %}</td><td class="name-cell">{{ student.name }}</td><td>{{ student.roll }}</td><td>{{ student.registration }}</td><td>{{ student.email }}</td><td>{{ student.age }}</td><td>{{ student.phone_number or "—" }}</td><td>{{ student.father_name or "—" }}</td><td>{{ student.father_phone or "—" }}</td><td>{{ student.mother_name or "—" }}</td><td>{{ student.district or "—" }}</td><td>{{ student.upazila or "—" }}</td><td>{{ student.union_name or "—" }}</td><td>{{ student.village or "—" }}</td><td>{{ student.department or "—" }}</td><td>{{ student.semester or "—" }}</td><td>{{ student.academic_session or "—" }}</td><td>{{ student.student_id or "—" }}</td><td>{{ student.nid or "—" }}</td><td>{{ student.date_of_birth or "—" }}</td><td>{{ student.shift or "—" }}</td></tr>{% endfor %}</tbody>
+  </table></div>{% else %}<div class="empty"><h2>No students to show</h2></div>{% endif %}
+</section>
+{% endblock %}

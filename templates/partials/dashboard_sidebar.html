@@ -1,0 +1,52 @@
+<aside class="dashboard-sidebar">
+  {% set current_path = request.url.path %}
+  {% if request.session.get("role") == "admin" %}
+  <a class="sidebar-brand{% if current_path == '/admin/dashboard' %} is-active{% endif %}" href="/admin/dashboard"{% if current_path == '/admin/dashboard' %} aria-current="page"{% endif %}>
+    <span class="sidebar-brand-icon">PG</span>
+    <span class="sidebar-brand-copy"><strong>PGPI HOME</strong><small>Student Management</small></span>
+    <span class="sidebar-brand-arrow">›</span>
+  </a>
+  <p class="sidebar-section-label">ADMIN WORKSPACE</p>
+  <a class="sidebar-link{% if current_path.startswith('/admin/authorised-list') %} is-active{% endif %}" href="/admin/authorised-list"{% if current_path.startswith('/admin/authorised-list') %} aria-current="page"{% endif %}><span class="sidebar-nav-icon">✓</span>Authorised List</a>
+  <a class="sidebar-link{% if current_path == '/ui/students' %} is-active{% endif %}" href="/ui/students"{% if current_path == '/ui/students' %} aria-current="page"{% endif %}><span class="sidebar-nav-icon">▦</span>Student list</a>
+  <a class="sidebar-link{% if current_path.startswith('/ui/manage') %} is-active{% endif %}" href="/ui/manage"{% if current_path.startswith('/ui/manage') %} aria-current="page"{% endif %}><span class="sidebar-nav-icon">✎</span>Manage students</a>
+  <a class="sidebar-link{% if current_path.startswith('/admin/teachers') %} is-active{% endif %}" href="/admin/teachers"{% if current_path.startswith('/admin/teachers') %} aria-current="page"{% endif %}><span class="sidebar-nav-icon">♙</span>Manage Teacher</a>
+  <a class="sidebar-link{% if current_path.startswith('/ui/print') %} is-active{% endif %}" href="/ui/print"{% if current_path.startswith('/ui/print') %} aria-current="page"{% endif %}><span class="sidebar-nav-icon">▤</span>Print students</a>
+  {% elif request.session.get("role") == "teacher" %}
+  <a class="sidebar-brand{% if current_path == '/teacher/dashboard' %} is-active{% endif %}" href="/teacher/dashboard"{% if current_path == '/teacher/dashboard' %} aria-current="page"{% endif %}>
+    <span class="sidebar-brand-icon">PG</span>
+    <span class="sidebar-brand-copy"><strong>PGPI HOME</strong><small>Teacher Workspace</small></span>
+    <span class="sidebar-brand-arrow">›</span>
+  </a>
+  <p class="sidebar-section-label">TEACHER WORKSPACE</p>
+  <a class="sidebar-link{% if current_path.startswith('/teacher/profile') %} is-active{% endif %}" href="/teacher/profile"{% if current_path.startswith('/teacher/profile') %} aria-current="page"{% endif %}><span class="sidebar-nav-icon">◉</span>My profile</a>
+  <a class="sidebar-link{% if current_path.startswith('/teacher/students') %} is-active{% endif %}" href="/teacher/students"{% if current_path.startswith('/teacher/students') %} aria-current="page"{% endif %}><span class="sidebar-nav-icon">▦</span>All department students</a>
+  <a class="sidebar-link{% if current_path.startswith('/teacher/subjects') %} is-active{% endif %}" href="/teacher/subjects"{% if current_path.startswith('/teacher/subjects') %} aria-current="page"{% endif %}><span class="sidebar-nav-icon">＋</span>Enroll now subject</a>
+  <a class="sidebar-link{% if current_path.startswith('/teacher/enrollments') %} is-active{% endif %}" href="/teacher/enrollments"{% if current_path.startswith('/teacher/enrollments') %} aria-current="page"{% endif %}><span class="sidebar-nav-icon">✓</span>Enroll student</a>
+  <a class="sidebar-link{% if current_path.startswith('/teacher/presentations') %} is-active{% endif %}" href="/teacher/presentations"{% if current_path.startswith('/teacher/presentations') %} aria-current="page"{% endif %}><span class="sidebar-nav-icon">▤</span>Daily presentations</a>
+  {% else %}
+  <a class="sidebar-brand{% if current_path in ['/student/dashboard', '/portal'] %} is-active{% endif %}" href="/student/dashboard"{% if current_path in ['/student/dashboard', '/portal'] %} aria-current="page"{% endif %}>
+    <span class="sidebar-brand-icon">PG</span>
+    <span class="sidebar-brand-copy"><strong>PGPI HOME</strong><small>Student Management</small></span>
+    <span class="sidebar-brand-arrow">›</span>
+  </a>
+  <p class="sidebar-section-label">STUDENT WORKSPACE</p>
+  <a class="sidebar-link{% if current_path in ['/student/dashboard', '/portal'] %} is-active{% endif %}" href="/student/dashboard"{% if current_path in ['/student/dashboard', '/portal'] %} aria-current="page"{% endif %}><span class="sidebar-nav-icon">▦</span>Department students</a>
+  <a class="sidebar-link{% if current_path.startswith('/student/subjects') %} is-active{% endif %}" href="/student/subjects"{% if current_path.startswith('/student/subjects') %} aria-current="page"{% endif %}><span class="sidebar-nav-icon">＋</span>Request subject enrollment</a>
+  <a class="sidebar-link{% if current_path.startswith('/student/semester-update') %} is-active{% endif %}" href="/student/semester-update"{% if current_path.startswith('/student/semester-update') %} aria-current="page"{% endif %}><span class="sidebar-nav-icon">↻</span>Semester update request</a>
+  <a class="sidebar-link{% if current_path.startswith('/student/presentations') %} is-active{% endif %}" href="/student/presentations"{% if current_path.startswith('/student/presentations') %} aria-current="page"{% endif %}><span class="sidebar-nav-icon">▤</span>Class presentations</a>
+  <a class="sidebar-link{% if current_path.startswith('/portal/profile') %} is-active{% endif %}" href="/portal/profile/edit"{% if current_path.startswith('/portal/profile') %} aria-current="page"{% endif %}><span class="sidebar-nav-icon">◉</span>Edit my profile</a>
+  {% endif %}
+  <details class="theme-settings">
+    <summary>Settings</summary>
+    <div class="theme-options" role="group" aria-label="Dashboard theme">
+      <button type="button" data-theme-choice="glass" aria-pressed="true"><span class="theme-swatch glass-swatch"></span>Glass</button>
+      <button type="button" data-theme-choice="light" aria-pressed="false"><span class="theme-swatch light-swatch"></span>Light</button>
+      <button type="button" data-theme-choice="blue" aria-pressed="false"><span class="theme-swatch blue-swatch"></span>Blue</button>
+      <button type="button" data-theme-choice="dark" aria-pressed="false"><span class="theme-swatch dark-swatch"></span>Dark</button>
+    </div>
+  </details>
+  <form class="sidebar-logout" method="post" action="/logout">
+    <button class="sidebar-link" type="submit"><span class="sidebar-logout-icon">↪</span>Logout</button>
+  </form>
+</aside>

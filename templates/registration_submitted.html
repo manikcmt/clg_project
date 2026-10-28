@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Registration submitted · StudentDesk{% endblock %}
+{% block content %}
+<section class="auth-card">
+  <p class="eyebrow">REGISTRATION SUBMITTED</p>
+  <h1>Thank you</h1>
+  <p class="muted">Your registration for roll / student ID <strong>{{ roll }}</strong> is waiting for Admin approval. After approval, a password setup link will be sent to your email address.</p>
+  <a class="button primary" href="/login/student">Go to Student Login</a>
+</section>
+{% endblock %}

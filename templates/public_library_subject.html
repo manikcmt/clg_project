@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}{{ subject.name }} Presentations · Institute Library{% endblock %}
+{% block content %}
+<section class="public-teacher-page public-library-page">
+  <a class="public-back-link" href="/library">← Institute Library</a>
+  <div class="public-library-subject-heading">
+    <p class="eyebrow">{{ subject.department }} · {{ subject.semester }}</p>
+    <h1>{{ subject.name }}</h1>
+    <p class="muted">Subject code: {{ subject.code }} · Teacher: {{ teacher.name }}</p>
+    {% if subject.description %}<p class="public-library-description">{{ subject.description }}</p>{% endif %}
+  </div>
+  <div class="public-library-presentations">
+    <div class="table-top"><strong>Class presentations</strong><span>{{ presentations|length }} file{{ "" if presentations|length == 1 else "s" }}</span></div>
+    {% if presentations %}
+    <div class="public-library-file-list">
+      {% for presentation in presentations %}
+      <article class="public-library-file">
+        <div class="public-library-file-icon" aria-hidden="true">▤</div>
+        <div class="public-library-file-info">
+          <strong>{{ presentation.title }}</strong>
+          <span>{{ presentation.filename }} · {{ presentation.presentation_date.strftime("%d %b %Y") }}</span>
+        </div>
+        {% if can_download %}
+        <a class="small-button" href="/student/presentations/{{ presentation.id }}/download">Download</a>
+        {% elif is_student %}
+        <a class="small-button" href="/student/subjects">Enroll to access</a>
+        {% else %}
+        <a class="small-button" href="/login/student">Student login</a>
+        {% endif %}
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty"><h2>No presentations uploaded</h2><p>Presentations added by this subject's teacher will appear here.</p></div>
+    {% endif %}
+    {% if not can_download and presentations %}
+    <p class="public-library-access-note">Files can be downloaded after student login and approved enrollment in this subject.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

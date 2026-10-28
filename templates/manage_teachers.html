@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Manage Teachers · StudentDesk{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">TEACHER ACCOUNTS</p>
+    <h1>Manage Teacher</h1>
+    <p class="muted">Search teachers, update their details, and control account access.</p>
+  </div>
+  <div class="button-row">
+    <a class="button secondary" href="/admin/teachers/export.xlsx{% if search %}?search={{ search|urlencode }}{% endif %}">Download Excel</a>
+    <a class="button secondary" href="/admin/teachers/print{% if search %}?search={{ search|urlencode }}{% endif %}">Print list</a>
+    <a class="button secondary" href="/admin/authorised-list">Teacher requests</a>
+  </div>
+</div>
+{% if updated %}<p class="notice success">Teacher information updated successfully.</p>{% endif %}
+{% if deleted %}<p class="notice success">Teacher account and its subject enrollment data were deleted.</p>{% endif %}
+{% if status_updated %}<p class="notice success">Teacher account status updated.</p>{% endif %}
+{% if error == "duplicate" %}<p class="notice error">That username or email is already used by another teacher.</p>
+{% elif error == "password" %}<p class="notice error">Teacher password must contain exactly 6 digits (0-9).</p>
+{% elif error == "invalid" %}<p class="notice error">Enter a valid name, username, and email address.</p>
+{% elif error == "not-approved" %}<p class="notice error">Only approved teacher accounts can be activated or deactivated. Review pending requests in Authorised List.</p>
+{% elif error == "delete" or error == "save" %}<p class="notice error">Could not save this change. Please try again.</p>{% endif %}
+<form class="search-bar" method="get" action="/admin/teachers">
+  <input name="search" value="{{ search }}" placeholder="Search teacher name, username, email or status">
+  <button class="button primary" type="submit">Find teacher</button>
+  {% if search %}<a class="button secondary" href="/admin/teachers">Clear</a>{% endif %}
+</form>
+<div class="table-card">
+  <div class="table-top"><strong>{{ teachers|length }} teacher account{{ "" if teachers|length == 1 else "s" }}</strong><span>Search name, username, email or status · <a href="/admin/authorised-list">Review pending requests</a></span></div>
+  {% if teachers %}
+  <div class="table-wrap"><table>
+    <thead><tr><th>Name</th><th>Username</th><th>Email</th><th>Department</th><th>Designation</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>{% for teacher in teachers %}
+    <tr>
+      <td class="name-cell">{{ teacher.name }}</td>
+      <td>{{ teacher.username }}</td>
+      <td>{{ teacher.email }}</td>
+      <td>{{ teacher.department or "Not assigned" }}</td>
+      <td>{{ teacher.designation or "Not set" }}</td>
+      <td><span class="teacher-status teacher-status-{{ teacher.account_status }}">{{ teacher.account_status|title }}</span></td>
+      <td>
+        <div class="actions teacher-actions">
+          <a class="small-button" href="/admin/teachers/{{ teacher.id }}/edit">Edit</a>
+          {% if teacher.account_status == "approved" %}
+          <form method="post" action="/admin/teachers/{{ teacher.id }}/status" data-confirm="Deactivate {{ teacher.name }}'s account? They will no longer be able to log in.">
+            <button class="small-button warning-button" type="submit">Deactivate</button>
+          </form>
+          {% elif teacher.account_status == "inactive" %}
+          <form method="post" action="/admin/teachers/{{ teacher.id }}/status" data-confirm="Activate {{ teacher.name }}'s account?">
+            <button class="small-button" type="submit">Activate</button>
+          </form>
+          {% endif %}
+          <form method="post" action="/admin/teachers/{{ teacher.id }}/delete" data-confirm="Permanently delete {{ teacher.name }} and all subjects/enrollment records owned by this teacher?">
+            <button class="small-button danger" type="submit">Delete</button>
+          </form>
+        </div>
+      </td>
+    </tr>
+    {% endfor %}</tbody>
+  </table></div>
+  {% else %}
+  <div class="empty"><span>⌕</span><h2>No teacher accounts found</h2><p>Teacher registrations will appear here after account requests are submitted.</p></div>
+  {% endif %}
+</div>
+{% endblock %}

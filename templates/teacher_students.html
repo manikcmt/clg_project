@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}All Students · StudentDesk{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">TEACHER DIRECTORY</p><h1>All Department Students</h1><p class="muted">Approved student profiles from every department.</p></div></div>
+<form class="search-bar" method="get" action="/teacher/students">
+  <input name="search" value="{{ search }}" placeholder="Search name, roll, email, department or address">
+  <select name="department"><option value="">All departments</option>{% for item in departments %}<option value="{{ item }}" {% if department == item %}selected{% endif %}>{{ item }}</option>{% endfor %}</select>
+  <select name="semester"><option value="">All semesters</option>{% for item in semesters %}<option value="{{ item }}" {% if semester == item %}selected{% endif %}>{{ item }}</option>{% endfor %}</select>
+  <button class="button primary" type="submit">Filter</button>
+</form>
+<div class="table-card">
+  <div class="table-top"><strong>{{ students|length }} student{{ "" if students|length == 1 else "s" }}</strong><span>Full profiles · approved accounts only</span></div>
+  {% if students %}
+  <div class="table-wrap"><table>
+    <thead><tr><th>Photo</th><th>Name / Roll</th><th>Registration / Student ID</th><th>Department / Semester / Session</th><th>Email / Phone</th><th>Address</th><th>Family contact</th><th>Experience / Work</th></tr></thead>
+    <tbody>{% for student in students %}
+    <tr>
+      <td>{% if student.picture_data %}<img class="student-thumb" src="/ui/students/{{ student.id }}/picture" alt="{{ student.name }} profile picture">{% else %}<span class="avatar-placeholder">—</span>{% endif %}</td>
+      <td class="name-cell">{{ student.name }}<br><small>{{ student.roll }}</small></td>
+      <td>{{ student.registration }}<br><small>{{ student.student_id or "—" }}</small></td>
+      <td>{{ student.department or "—" }}<br><small>{{ student.semester or "—" }} · {{ student.academic_session or "—" }} · {{ student.shift or "—" }} · Age {{ student.age }} · {{ student.date_of_birth or "—" }}</small></td>
+      <td>{{ student.email }}<br><small>{{ student.phone_number or "—" }}</small></td>
+      <td>{{ [student.village, student.union_name, student.upazila, student.district]|select|join(", ") or "—" }}<br><small>NID: {{ student.nid or "—" }}</small></td>
+      <td>{{ student.father_name or "—" }} / {{ student.father_phone or "—" }}<br>{{ student.mother_name or "—" }}</td>
+      <td>{{ student.working_place or "—" }}<br><small>{{ student.experience or "—" }}</small></td>
+    </tr>
+    {% endfor %}</tbody>
+  </table></div>
+  {% else %}<div class="empty"><h2>No students found</h2><p>Try another search or filter.</p></div>{% endif %}
+</div>
+{% endblock %}

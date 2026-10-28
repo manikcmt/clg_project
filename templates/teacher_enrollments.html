@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Enroll Student · StudentDesk{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">STUDENT ENROLLMENT</p><h1>Enroll Student</h1><p class="muted">Review requests and activate or deactivate a student's enrollment in your subjects.</p></div></div>
+{% if updated %}<p class="notice success">Enrollment request updated.</p>{% endif %}
+{% if status_updated %}<p class="notice success">{{ status_updated_count }} subject enrollment{{ "" if status_updated_count == "1" else "s" }} updated.</p>{% endif %}
+{% if status_skipped %}<p class="notice">Skipped {{ status_skipped }} selected enrollment{{ "" if status_skipped == "1" else "s" }} because their current status did not match that action.</p>{% endif %}
+{% if status_error %}<p class="notice error">Select eligible enrollment rows first. Only your own approved enrollments can be deactivated, and only your own inactive enrollments can be activated.</p>{% endif %}
+<form class="search-bar" method="get" action="/teacher/enrollments">
+  <select name="department" aria-label="Filter by technology or department">
+    <option value="">All technologies / departments</option>
+    {% for item in departments %}<option value="{{ item }}" {% if department == item %}selected{% endif %}>{{ item }}</option>{% endfor %}
+  </select>
+  <select name="semester" aria-label="Filter by semester">
+    <option value="">All semesters</option>
+    {% for item in semesters %}<option value="{{ item }}" {% if semester == item %}selected{% endif %}>{{ item }}</option>{% endfor %}
+  </select>
+  <button class="button primary" type="submit">Filter students</button>
+  {% if department or semester %}<a class="button secondary" href="/teacher/enrollments">Clear</a>{% endif %}
+</form>
+<section class="portal-list">
+  <div class="table-top"><strong>Student enrollments</strong><span>{{ enrollments|length }} record{{ "" if enrollments|length == 1 else "s" }}</span></div>
+  {% if enrollments %}
+  <form id="bulk-enrollment-form" class="bulk-enrollment-toolbar" method="post" action="/teacher/enrollments/bulk-status" data-confirm="Apply this status change to the selected subject enrollments?">
+    <input type="hidden" name="department" value="{{ department }}">
+    <input type="hidden" name="semester" value="{{ semester }}">
+    <label class="select-all-label"><input type="checkbox" data-select-all-enrollments> Select all</label>
+    <button class="small-button danger" type="submit" name="action" value="deactivate">Deactivate selected</button>
+    <button class="small-button" type="submit" name="action" value="activate">Activate selected</button>
+  </form>
+  <div class="table-wrap"><table><thead><tr><th>Select</th><th>Student</th><th>Roll</th><th>Technology / Department</th><th>Semester</th><th>Subject</th><th>Status</th><th>Action</th></tr></thead><tbody>
+  {% for enrollment, subject, student in enrollments %}
+  <tr><td>{% if enrollment.status == "approved" %}<input type="checkbox" name="enrollment_ids" value="{{ enrollment.id }}" form="bulk-enrollment-form" data-enrollment-select="approved" aria-label="Select active enrollment for {{ student.name }} in {{ subject.name }}">{% elif enrollment.status == "inactive" %}<input type="checkbox" name="enrollment_ids" value="{{ enrollment.id }}" form="bulk-enrollment-form" data-enrollment-select="inactive" aria-label="Select inactive enrollment for {{ student.name }} in {{ subject.name }}">{% else %}—{% endif %}</td><td class="name-cell">{{ student.name }}</td><td>{{ student.roll }}</td><td>{{ student.department or "—" }}</td><td>{{ student.semester or "—" }}</td><td>{{ subject.name }} ({{ subject.code }})</td><td>{{ enrollment.status|title }}</td><td>
+    {% if enrollment.status == "pending" %}<div class="actions">
+      <form method="post" action="/teacher/enrollments/{{ enrollment.id }}/approve?department={{ department|urlencode }}&semester={{ semester|urlencode }}"><button class="small-button" type="submit">Approve</button></form>
+      <form method="post" action="/teacher/enrollments/{{ enrollment.id }}/reject?department={{ department|urlencode }}&semester={{ semester|urlencode }}" data-confirm="Reject this student enrollment request?"><button class="small-button danger" type="submit">Reject</button></form>
+    </div>
+    {% elif enrollment.status == "approved" %}
+    <form method="post" action="/teacher/enrollments/{{ enrollment.id }}/deactivate?department={{ department|urlencode }}&semester={{ semester|urlencode }}" data-confirm="Deactivate this student's enrollment in {{ subject.name }}? The student will lose access to this subject's materials, but their account stays active.">
+      <button class="small-button danger" type="submit">Deactivate</button>
+    </form>
+    {% elif enrollment.status == "inactive" %}
+    <form method="post" action="/teacher/enrollments/{{ enrollment.id }}/activate?department={{ department|urlencode }}&semester={{ semester|urlencode }}" data-confirm="Reactivate this student's enrollment in {{ subject.name }}?">
+      <button class="small-button" type="submit">Activate</button>
+    </form>
+    {% else %}—{% endif %}
+  </td></tr>
+  {% endfor %}
+  </tbody></table></div>{% else %}<div class="empty"><h2>No enrollment requests</h2><p>Student requests will appear here.</p></div>{% endif %}
+</section>
+{% endblock %}

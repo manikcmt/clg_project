@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} · StudentDesk{% endblock %}
+{% block content %}
+<div class="student-form-heading">
+  <h1>{{ "New Student Registration" if registration else "Student Information Entry" }}</h1>
+  {% if registration %}<p class="muted">Submit your information for Admin approval. You will receive a password setup link by email after approval.</p>{% endif %}
+</div>
+<div class="student-form-wrap">
+{% if error %}<p class="notice error">{{ error }}</p>{% endif %}
+<form class="form-card student-form-card" method="post" action="{{ action }}" enctype="multipart/form-data">
+  <section class="form-section">
+    <h2>Student Personal Details</h2>
+    <div class="form-grid">
+      <label>Full name *
+        <input name="name" required maxlength="255" value="{{ form_data.get('name', student.name if student else '') }}">
+      </label>
+      <label>Phone number *
+        <input name="phone_number" type="tel" required maxlength="30" value="{{ form_data.get('phone_number', student.phone_number if student else '') }}">
+      </label>
+      <label>Father's name *
+        <input name="father_name" required maxlength="255" value="{{ form_data.get('father_name', student.father_name if student else '') }}">
+      </label>
+      <label>Father's phone number *
+        <input name="father_phone" type="tel" required maxlength="30" value="{{ form_data.get('father_phone', student.father_phone if student else '') }}">
+      </label>
+      <label>Mother's name *
+        <input name="mother_name" required maxlength="255" value="{{ form_data.get('mother_name', student.mother_name if student else '') }}">
+      </label>
+      <label>Email address *
+        <input name="email" type="email" required maxlength="255" value="{{ form_data.get('email', student.email if student else '') }}">
+      </label>
+      <label>District *
+        <input name="district" required maxlength="255" value="{{ form_data.get('district', student.district if student else '') }}">
+      </label>
+      <label>Upazila *
+        <input name="upazila" required maxlength="255" value="{{ form_data.get('upazila', student.upazila if student else '') }}">
+      </label>
+      <label>Union *
+        <input name="union_name" required maxlength="255" value="{{ form_data.get('union_name', student.union_name if student else '') }}">
+      </label>
+      <label>Village *
+        <input name="village" required maxlength="255" value="{{ form_data.get('village', student.village if student else '') }}">
+      </label>
+      <label>National ID (NID)
+        <input name="nid" maxlength="50" value="{{ form_data.get('nid', student.nid if student else '') }}">
+      </label>
+      <label>Date of birth *
+        <input name="date_of_birth" type="date" required max="{{ today }}" value="{{ form_data.get('date_of_birth', student.date_of_birth.isoformat() if student and student.date_of_birth else '') }}">
+      </label>
+      <label class="full-width student-picture-upload">Student picture (JPG, PNG or WEBP; max 5 MB)
+        <input name="picture" type="file" accept="image/jpeg,image/png,image/webp">
+      </label>
+      {% if student and student.picture_data %}
+      <div class="picture-preview">
+        <img src="/ui/students/{{ student.id }}/picture" alt="Current student picture">
+        <span>Current picture</span>
+      </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="form-section">
+    <h2>Academic Details</h2>
+    <div class="form-grid">
+      <label>Department *
+        <select name="department" required>
+          <option value="">Select department</option>
+          {% for item in departments %}
+          <option value="{{ item }}" {% if form_data.get('department', student.department if student else '') == item %}selected{% endif %}>{{ item }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Semester *
+        <select name="semester" required>
+          <option value="">Select semester</option>
+          {% for item in semesters %}
+          <option value="{{ item }}" {% if form_data.get('semester', student.semester if student else '') == item %}selected{% endif %}>{{ item }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Academic session *
+        <input name="academic_session" required maxlength="100" placeholder="e.g. 2025-26" value="{{ form_data.get('academic_session', student.academic_session if student else '') }}">
+      </label>
+      <label>Student Roll / ID *
+        <input name="roll" required maxlength="255" value="{{ form_data.get('roll', student.roll if student else '') }}">
+        <small>Roll number must be unique.</small>
+      </label>
+      <label>Registration number *
+        <input name="registration" required maxlength="255" value="{{ form_data.get('registration', student.registration if student else '') }}">
+      </label>
+      <label>Student ID (optional)
+        <input name="student_id" maxlength="100" value="{{ form_data.get('student_id', student.student_id if student else '') }}">
+      </label>
+      {% if not registration %}
+      <label>Student login password {% if not student %}*{% else %}(leave blank to keep current){% endif %}
+        <input name="student_password" type="password" {% if not student %}required{% endif %} minlength="4" maxlength="4" pattern="[0-9]{4}" inputmode="numeric" autocomplete="new-password">
+        <small>Exactly 4 digits (0-9). Password is stored securely as a hash.</small>
+      </label>
+      {% endif %}
+      <label>Shift *
+        <select name="shift" required>
+          <option value="">Select shift</option>
+          {% for item in shifts %}
+          <option value="{{ item }}" {% if form_data.get('shift', student.shift if student else '') == item %}selected{% endif %}>{{ item }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+  </section>
+
+  <div class="button-row">
+    <button class="button primary" type="submit">{{ "Submit registration" if registration else "Save changes" if student else "Add student" }}</button>
+    <a class="button secondary" href="{{ '/login/student' if registration else '/ui/students' if not student else '/ui/manage' }}">Cancel</a>
+  </div>
+</form>
+</div>
+{% endblock %}

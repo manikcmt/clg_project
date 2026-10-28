@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Edit My Profile · StudentDesk{% endblock %}
+{% block content %}
+<div class="student-form-heading">
+  <h1>Edit My Profile</h1>
+  <p class="muted">Update your contact details, address, experience and profile picture.</p>
+</div>
+<div class="student-form-wrap">
+  {% if error %}<p class="notice error">{{ error }}</p>{% endif %}
+  <form class="form-card student-form-card" method="post" action="/portal/profile/edit" enctype="multipart/form-data">
+    <section class="form-section">
+      <h2>Personal information</h2>
+      <div class="form-grid">
+        <label>Full name *
+          <input name="name" required maxlength="255" value="{{ student.name }}">
+        </label>
+        <label>Email address *
+          <input name="email" type="email" required maxlength="255" value="{{ student.email }}">
+        </label>
+        <label>Phone number
+          <input name="phone_number" type="tel" maxlength="30" value="{{ student.phone_number or '' }}">
+        </label>
+        <label class="full-width">Profile picture (JPG, PNG or WEBP; max 5 MB)
+          <input name="picture" type="file" accept="image/jpeg,image/png,image/webp">
+        </label>
+        {% if student.picture_data %}
+        <div class="picture-preview">
+          <img src="/portal/profile/picture" alt="Current profile picture">
+          <span>Current picture</span>
+        </div>
+        {% endif %}
+      </div>
+    </section>
+    <section class="form-section">
+      <h2>Address and work</h2>
+      <div class="form-grid">
+        <label>Village
+          <input name="village" maxlength="255" value="{{ student.village or '' }}">
+        </label>
+        <label>Union
+          <input name="union_name" maxlength="255" value="{{ student.union_name or '' }}">
+        </label>
+        <label>Upazila
+          <input name="upazila" maxlength="255" value="{{ student.upazila or '' }}">
+        </label>
+        <label>District
+          <input name="district" maxlength="255" value="{{ student.district or '' }}">
+        </label>
+        <label>Working place
+          <input name="working_place" maxlength="255" value="{{ student.working_place or '' }}" placeholder="Company or organization">
+        </label>
+        <label class="full-width">Experience
+          <textarea name="experience" maxlength="2000" rows="5" placeholder="Describe your work experience">{{ student.experience or '' }}</textarea>
+        </label>
+      </div>
+    </section>
+    <p class="muted">Department, semester, shift and roll number are managed by the institute and cannot be changed here.</p>
+    <div class="button-row">
+      <button class="button primary" type="submit">Save profile</button>
+      <a class="button secondary" href="/student/dashboard">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

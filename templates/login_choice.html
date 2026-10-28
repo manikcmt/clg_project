@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Login · StudentDesk{% endblock %}
+{% block content %}
+<section class="auth-card">
+  <p class="eyebrow">WELCOME</p>
+  <h1>Choose your login</h1>
+  <p class="muted">Select your account type to continue.</p>
+  <div class="auth-choice">
+    <a class="button primary" href="/login/admin">Admin Login</a>
+    <a class="button secondary" href="/login/teacher">Teacher Login</a>
+    <a class="button secondary" href="/login/student">Student Login</a>
+  </div>
+</section>
+{% endblock %}

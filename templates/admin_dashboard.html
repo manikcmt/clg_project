@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard · StudentDesk{% endblock %}
+{% block content %}
+<div class="dashboard-layout">
+  <div class="dashboard-main">
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">ADMIN DASHBOARD</p>
+    <h1>Welcome, Admin</h1>
+    <p class="muted">Manage student records and review department totals.</p>
+  </div>
+</div>
+<section class="dashboard-stats">
+  <div class="count-card">
+    <span class="count-icon">▣</span>
+    <strong class="count-number">{{ total_students }}</strong>
+    <p class="muted">Total students</p>
+  </div>
+  <div class="count-card">
+    <span class="count-icon">⌂</span>
+    <strong class="count-number">{{ active_departments }}</strong>
+    <p class="muted">Departments with students</p>
+  </div>
+</section>
+<a class="authorised-card" href="/admin/authorised-list">
+  <span class="count-icon">✓</span>
+  <span><strong>Authorised List</strong><small>{{ pending_count }} registration{{ "" if pending_count == 1 else "s" }}, {{ pending_semester_count }} semester update{{ "" if pending_semester_count == 1 else "s" }} and {{ pending_teacher_count }} teacher request{{ "" if pending_teacher_count == 1 else "s" }} waiting for approval</small></span>
+  <span class="authorised-arrow">Open list →</span>
+</a>
+{% if unactivated_students %}
+<section class="portal-list">
+  <div class="table-top">
+    <strong>Approved students who have not set a password</strong>
+    <span>{{ unactivated_students|length }} student{{ "" if unactivated_students|length == 1 else "s" }}</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Name</th><th>Roll / ID</th><th>Email</th><th>Action</th></tr></thead>
+      <tbody>{% for student in unactivated_students %}
+      <tr>
+        <td class="name-cell">{{ student.name }}</td><td>{{ student.roll }}</td><td>{{ student.email }}</td>
+        <td>
+          <form method="post" action="/admin/registrations/{{ student.id }}/resend-setup">
+            <button class="small-button" type="submit">Resend setup link</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}</tbody>
+    </table>
+  </div>
+</section>
+{% endif %}
+<section class="dashboard-actions">
+  <a class="quick-card" href="/ui/students">
+    <span>STUDENTS</span><h2>Student list</h2><p>Search records, import Excel, or export data.</p>
+  </a>
+  <a class="quick-card" href="/ui/manage">
+    <span>MANAGE</span><h2>Edit or delete</h2><p>Find a student and update their record.</p>
+  </a>
+</section>
+  </div>
+</div>
+{% endblock %}

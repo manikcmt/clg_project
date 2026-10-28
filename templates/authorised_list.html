@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% block title %}Authorised List · Student Management System{% endblock %}
+{% block content %}
+<div class="authorised-page-heading">
+  <p class="eyebrow">ADMIN APPROVALS</p>
+</div>
+{% if email_error %}<p class="notice error">Could not send the setup email. The registration is still pending. Check SMTP settings and try again.</p>{% endif %}
+{% if manual_email_error %}<p class="notice error">Student is approved and the password is saved, but the email could not be sent. Please share the password with the student securely or check SMTP settings.</p>{% endif %}
+{% if approval_error %}<p class="notice error">Could not save the approval. Please try again.</p>{% endif %}
+{% if password_error %}<p class="notice error">Manual password must contain exactly 4 digits (0-9).</p>{% endif %}
+{% if approved %}<p class="notice success">Registration approved and setup email sent.</p>{% endif %}
+{% if manual_approved %}<p class="notice success">Student approved. Login ID and manual password have been emailed.</p>{% endif %}
+{% if password_approved_count is not none %}<p class="notice success">{{ password_approved_count }} Excel-password student{{ "" if password_approved_count|int == 1 else "s" }} approved. Students can log in using the passwords from the uploaded spreadsheet.</p>{% endif %}
+{% if teacher_approved %}<p class="notice success">Teacher account approved. The teacher can now log in.</p>{% endif %}
+{% if teacher_approval_error %}<p class="notice error">Could not approve the selected teacher requests. Please refresh the list and try again.</p>{% endif %}
+{% if teacher_approved_count is not none %}<p class="notice success">{{ teacher_approved_count }} teacher account{{ "" if teacher_approved_count|int == 1 else "s" }} approved.</p>{% endif %}
+{% if semester_request_approved %}<p class="notice success">Semester update approved. The student's profile now shows the requested semester.</p>{% endif %}
+{% if semester_request_rejected %}<p class="notice success">Semester update request rejected. The student's current semester was not changed.</p>{% endif %}
+{% if semester_request_error %}<p class="notice error">Could not process that semester update request. It may already have been reviewed; refresh the list and try again.</p>{% endif %}
+{% if semester_request_approved_count is not none %}<p class="notice success">{{ semester_request_approved_count }} semester update request{{ "" if semester_request_approved_count|int == 1 else "s" }} approved.</p>{% endif %}
+{% if approved_count is not none %}
+  {% if failed_count|int == 0 %}
+  <p class="notice success">{{ approved_count }} student{{ "" if approved_count|int == 1 else "s" }} approved and setup email sent.</p>
+  {% else %}
+  <p class="notice error">{{ approved_count }} approved; {{ failed_count }} could not be approved because the email failed or the registration was no longer pending.</p>
+  {% endif %}
+{% endif %}
+<section class="portal-list authorised-request-section authorised-registration-section">
+  <div class="table-top authorised-section-heading">
+    <strong>Pending registrations</strong>
+    <span>{{ pending_registrations|length }} pending</span>
+  </div>
+  {% if pending_registrations %}
+  <div class="approval-toolbar">
+    <label class="select-all-label"><input type="checkbox" data-select-all-students> Select all</label>
+    <form id="approve-selected-form" method="post" action="/admin/registrations/approve-selected" data-confirm="Approve the selected students and email their password setup links?">
+      <button class="button primary" type="submit">✓ Approve selected</button>
+    </form>
+    <form method="post" action="/admin/registrations/approve-all" data-confirm="Approve all {{ pending_registrations|length }} pending students and email each password setup link?">
+      <button class="button secondary" type="submit">✓ Approve all</button>
+    </form>
+    {% if excel_password_ready_count %}
+    <form method="post" action="/admin/registrations/approve-excel-passwords" data-confirm="Approve all {{ excel_password_ready_count }} imported students with passwords from the Excel file?">
+      <button class="button secondary" type="submit">✓ Approve Excel-password students ({{ excel_password_ready_count }})</button>
+    </form>
+    {% endif %}
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th><span class="sr-only">Select</span></th><th>Name</th><th>Roll / ID</th><th>Department</th><th>Semester</th><th>Email</th><th>Accept with password</th><th>Action</th></tr></thead>
+      <tbody>{% for student in pending_registrations %}
+      <tr>
+        <td><input type="checkbox" name="student_ids" value="{{ student.id }}" form="approve-selected-form" data-student-select aria-label="Select {{ student.name }}"></td>
+        <td class="name-cell">{{ student.name }}</td>
+        <td>{{ student.roll }}</td>
+        <td>{{ student.department or "—" }}</td>
+        <td>{{ student.semester or "—" }}</td>
+        <td>{{ student.email }}</td>
+        <td>
+          {% if student.password_hash %}
+          <span class="excel-password-ready">Password set from Excel</span>
+          {% else %}
+          <form class="manual-approval-form" method="post" action="/admin/registrations/{{ student.id }}/approve-manual" data-confirm="Approve {{ student.name }} and email the entered temporary password?">
+            <input name="password" type="password" required minlength="4" maxlength="4" pattern="[0-9]{4}" inputmode="numeric" autocomplete="new-password" placeholder="4-digit password" aria-label="Set 4-digit password for {{ student.name }}">
+            <button class="small-button" type="submit">Accept + email</button>
+          </form>
+          <small class="muted">Temporary password: exactly 4 digits</small>
+          {% endif %}
+        </td>
+        <td class="actions">
+          <form method="post" action="/admin/registrations/{{ student.id }}/approve" data-confirm="Accept {{ student.name }}'s registration and email a password setup link?">
+            <button class="small-button" type="submit">✓ Accept</button>
+          </form>
+          <form method="post" action="/admin/registrations/{{ student.id }}/reject" data-confirm="Reject {{ student.name }}'s registration?">
+            <button class="small-button danger" type="submit">Reject</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}</tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty"><h2>No registrations waiting</h2><p>New student requests will appear here.</p></div>
+  {% endif %}
+</section>
+<section class="portal-list authorised-request-section authorised-teacher-section">
+  <div class="table-top authorised-section-heading">
+    <strong>Teacher account requests</strong>
+    <span>{{ pending_teachers|length }} pending</span>
+  </div>
+  {% if pending_teachers %}
+  <div class="approval-toolbar">
+    <label class="select-all-label"><input type="checkbox" data-select-all-teachers> Select all teacher requests</label>
+    <form id="approve-selected-teachers-form" method="post" action="/admin/teachers/approve-selected" data-confirm="Approve all selected teacher account requests?">
+      <button class="button primary" type="submit">✓ Approve selected teachers</button>
+    </form>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th><span class="sr-only">Select</span></th><th>Name</th><th>Username</th><th>Email</th><th>Action</th></tr></thead>
+      <tbody>{% for teacher in pending_teachers %}
+      <tr>
+        <td><input type="checkbox" name="teacher_ids" value="{{ teacher.id }}" form="approve-selected-teachers-form" data-teacher-select aria-label="Select {{ teacher.name }} teacher request"></td>
+        <td class="name-cell">{{ teacher.name }}</td>
+        <td>{{ teacher.username }}</td>
+        <td>{{ teacher.email }}</td>
+        <td class="actions">
+          <form method="post" action="/admin/teachers/{{ teacher.id }}/approve" data-confirm="Approve {{ teacher.name }}'s teacher account?">
+            <button class="small-button" type="submit">✓ Approve</button>
+          </form>
+          <form method="post" action="/admin/teachers/{{ teacher.id }}/reject" data-confirm="Reject {{ teacher.name }}'s teacher account request?">
+            <button class="small-button danger" type="submit">Reject</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}</tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty"><h2>No teacher requests waiting</h2><p>Teacher registrations will appear here for approval.</p></div>
+  {% endif %}
+</section>
+<section class="portal-list authorised-request-section authorised-semester-section" id="semester-update-requests">
+  <div class="table-top authorised-section-heading">
+    <strong>Semester update requests</strong>
+    <span>{{ pending_semester_requests|length }} pending</span>
+  </div>
+  <form class="search-bar semester-request-filter" method="get" action="/admin/authorised-list">
+    <select name="department" aria-label="Filter semester requests by department">
+      <option value="">All departments</option>
+      {% for item in semester_request_departments %}<option value="{{ item }}" {% if semester_request_department == item %}selected{% endif %}>{{ item }}</option>{% endfor %}
+    </select>
+    <select name="requested_semester" aria-label="Filter by requested semester">
+      <option value="">All requested semesters</option>
+      {% for item in semester_request_semesters %}<option value="{{ item }}" {% if semester_request_semester == item %}selected{% endif %}>{{ item }}</option>{% endfor %}
+    </select>
+    <button class="button primary" type="submit">Filter requests</button>
+    {% if semester_request_department or semester_request_semester %}<a class="button secondary" href="/admin/authorised-list#semester-update-requests">Clear filters</a>{% endif %}
+  </form>
+  {% if pending_semester_requests %}
+  <div class="approval-toolbar">
+    <label class="select-all-label"><input type="checkbox" data-select-all-semester-requests> Select all filtered requests</label>
+    <form id="approve-selected-semester-requests-form" method="post" action="/admin/semester-update-requests/approve-selected" data-confirm="Approve all selected semester update requests? This will update each student's semester.">
+      <input type="hidden" name="department" value="{{ semester_request_department }}">
+      <input type="hidden" name="requested_semester" value="{{ semester_request_semester }}">
+      <button class="button primary" type="submit">✓ Approve selected requests</button>
+    </form>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th><span class="sr-only">Select</span></th><th>Student</th><th>Roll</th><th>Department</th><th>Current semester</th><th>Requested semester</th><th>Request date</th><th>Action</th></tr></thead>
+      <tbody>{% for semester_request, student in pending_semester_requests %}
+      <tr>
+        <td><input type="checkbox" name="request_ids" value="{{ semester_request.id }}" form="approve-selected-semester-requests-form" data-semester-request-select aria-label="Select semester request for {{ student.name }}"></td>
+        <td class="name-cell">{{ student.name }}</td>
+        <td>{{ student.roll }}</td>
+        <td>{{ student.department or "—" }}</td>
+        <td>{{ semester_request.current_semester }}</td>
+        <td>{{ semester_request.requested_semester }}</td>
+        <td>{{ semester_request.created_at.strftime("%d %b %Y") }}</td>
+        <td class="actions">
+          <form method="post" action="/admin/semester-update-requests/{{ semester_request.id }}/approve" data-confirm="Approve {{ student.name }}'s semester update to {{ semester_request.requested_semester }}?">
+            <button class="small-button" type="submit">✓ Approve</button>
+          </form>
+          <form method="post" action="/admin/semester-update-requests/{{ semester_request.id }}/reject" data-confirm="Reject {{ student.name }}'s semester update request?">
+            <button class="small-button danger" type="submit">Reject</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}</tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty"><h2>No semester update requests waiting</h2><p>Student requests will appear here for review.</p></div>
+  {% endif %}
+</section>
+<a class="button secondary" href="/admin/dashboard">Back to Dashboard</a>
+{% endblock %}

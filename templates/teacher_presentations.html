@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Subject Presentations · StudentDesk{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <div><p class="eyebrow">TEACHING MATERIALS</p><h1>Daily Presentations</h1><p class="muted">Upload subject presentations for the students enrolled in your class.</p></div>
+</div>
+{% if created %}<p class="notice success">Presentation uploaded and shared with enrolled students.</p>{% endif %}
+{% if deleted %}<p class="notice success">Presentation deleted.</p>{% endif %}
+{% if error == "subject" %}<p class="notice error">Choose a subject that belongs to your account.</p>
+{% elif error == "invalid" %}<p class="notice error">Enter a valid presentation date that is not in the future.</p>
+{% elif error == "size" %}<p class="notice error">Presentation files must be 20 MB or smaller.</p>
+{% elif error == "file" %}<p class="notice error">Upload a valid PDF, PPT, or PPTX presentation.</p>
+{% elif error == "save" %}<p class="notice error">Could not save the presentation. Please try again.</p>{% endif %}
+<form class="form-card teacher-presentation-form" method="post" enctype="multipart/form-data" action="/teacher/presentations">
+  <h2>Upload a presentation</h2>
+  {% if subjects %}
+  <div class="form-grid">
+    <label>Subject<select name="subject_id" required>{% for subject in subjects %}<option value="{{ subject.id }}">{{ subject.name }} · {{ subject.code }} · {{ subject.department }} · {{ subject.semester }}</option>{% endfor %}</select></label>
+    <label>Presentation date<input type="date" name="presentation_date" required max="{{ today }}" value="{{ today }}"></label>
+    <label>Presentation title<input name="title" required maxlength="255" placeholder="Example: Introduction to electrical circuits"></label>
+    <label>File (PDF, PPT, or PPTX)<input name="presentation_file" type="file" required accept=".pdf,.ppt,.pptx,application/pdf,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation"><small>Maximum file size: 20 MB. Only students with approved enrollment in this subject can download it.</small></label>
+  </div>
+  <button class="button primary" type="submit">Upload presentation</button>
+  {% else %}<p class="muted">Create a subject first, then you can upload its presentations.</p><a class="button secondary" href="/teacher/subjects">Go to subjects</a>{% endif %}
+</form>
+<div class="table-card">
+  <div class="table-top"><strong>Your presentations</strong><span>{{ presentations|length }} file{{ "" if presentations|length == 1 else "s" }}</span></div>
+  {% if presentations %}
+  <div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Subject</th><th>Title</th><th>File</th><th>Actions</th></tr></thead>
+    <tbody>{% for presentation, subject in presentations %}
+    <tr><td>{{ presentation.presentation_date.strftime("%d %b %Y") }}</td><td>{{ subject.name }} ({{ subject.code }})</td><td class="name-cell">{{ presentation.title }}</td><td>{{ presentation.filename }}</td><td><div class="actions"><a class="small-button" href="/teacher/presentations/{{ presentation.id }}/download">Download</a><form method="post" action="/teacher/presentations/{{ presentation.id }}/delete" data-confirm="Delete this presentation? Enrolled students will no longer be able to access it."><button class="small-button danger" type="submit">Delete</button></form></div></td></tr>
+    {% endfor %}</tbody>
+  </table></div>
+  {% else %}<div class="empty"><h2>No presentations uploaded</h2><p>Upload a dated presentation for one of your subjects.</p></div>{% endif %}
+</div>
+{% endblock %}

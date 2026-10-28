@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Enroll Now Subject · StudentDesk{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">SUBJECT MANAGEMENT</p><h1>Enroll Now Subject</h1><p class="muted">Create subjects that students can request to enroll in.</p></div></div>
+{% if created %}<p class="notice success">Subject created. Eligible students can now request enrollment.</p>{% endif %}
+{% if updated %}<p class="notice success">Subject updated successfully.</p>{% endif %}
+{% if subject_status == "deactivated" %}<p class="notice success">Subject deactivated. New enrollment requests are closed; students already enrolled can still access its presentations.</p>{% elif subject_status == "activated" %}<p class="notice success">Subject activated. Students can request enrollment again.</p>{% endif %}
+{% if error == "duplicate" %}<p class="notice error">That subject code already exists for this department and semester.</p>{% elif error == "invalid" %}<p class="notice error">Choose a valid department and semester.</p>{% endif %}
+<details class="subject-entry-panel" {% if edit_subject or error %}open{% endif %}>
+  <summary class="button primary subject-entry-toggle"><span aria-hidden="true">{{ "✎" if edit_subject else "+" }}</span>{{ "Edit subject" if edit_subject else "Create Subject" }}</summary>
+  <form class="form-card teacher-subject-form" method="post" action="{{ '/teacher/subjects/' ~ edit_subject.id ~ '/edit' if edit_subject else '/teacher/subjects' }}">
+    <div class="teacher-subject-form-heading">
+      <span class="subject-form-icon" aria-hidden="true">{{ "✎" if edit_subject else "+" }}</span>
+      <div><p class="eyebrow">{{ "SUBJECT DETAILS" if edit_subject else "BUILD YOUR CLASS" }}</p><h2>{{ "Edit subject" if edit_subject else "Create a subject" }}</h2><p class="subject-form-help">Add the subject information so students in the right department and semester can find it.</p></div>
+      {% if edit_subject %}<a class="small-button subject-cancel" href="/teacher/subjects">Cancel edit</a>{% endif %}
+    </div>
+    <div class="form-grid subject-form-grid">
+      <label>Subject name<input name="name" required maxlength="255" placeholder="e.g. Programming in C" value="{{ edit_subject.name if edit_subject else '' }}"><small>Use the name students will recognize.</small></label>
+      <label>Subject code<input name="code" required maxlength="50" placeholder="e.g. CST-101" value="{{ edit_subject.code if edit_subject else '' }}"><small>Enter the official course or subject code.</small></label>
+      <label>Department<select name="department" required><option value="">Choose a department</option>{% for item in departments %}<option value="{{ item }}" {% if edit_subject and edit_subject.department == item %}selected{% endif %}>{{ item }}</option>{% endfor %}</select><small>Only students in this department can request enrollment.</small></label>
+      <label>Semester<select name="semester" required><option value="">Choose a semester</option>{% for item in semesters %}<option value="{{ item }}" {% if edit_subject and edit_subject.semester == item %}selected{% endif %}>{{ item }}</option>{% endfor %}</select><small>Select the semester that this subject belongs to.</small></label>
+      <label class="full-width subject-description-field">Description <span class="optional-field">Optional</span><textarea name="description" maxlength="2000" rows="3" placeholder="Briefly describe the subject, topics, or learning goals...">{{ edit_subject.description if edit_subject and edit_subject.description else '' }}</textarea></label>
+    </div>
+    <div class="subject-form-footer"><p>Fields marked as required must be completed.</p><button class="button primary create-subject-submit" type="submit"><span aria-hidden="true">{{ "✓" if edit_subject else "+" }}</span>{{ "Save changes" if edit_subject else "Create subject" }}</button></div>
+  </form>
+</details>
+<section class="portal-list">
+  <div class="table-top"><strong>Your subjects</strong><span>{{ subjects|length }} subject{{ "" if subjects|length == 1 else "s" }}</span></div>
+  {% if subjects %}<div class="table-wrap"><table><thead><tr><th>Subject</th><th>Code</th><th>Department</th><th>Semester</th><th>Description</th><th>Status</th><th>Action</th></tr></thead><tbody>
+  {% for subject in subjects %}<tr><td class="name-cell">{{ subject.name }}</td><td>{{ subject.code }}</td><td>{{ subject.department }}</td><td>{{ subject.semester }}</td><td>{{ subject.description or "—" }}</td><td><span class="teacher-status {{ 'teacher-status-approved' if subject.is_active else 'teacher-status-inactive' }}">{{ "Active" if subject.is_active else "Inactive" }}</span></td><td><div class="actions subject-actions">
+    <a class="small-button" href="/teacher/subjects?edit_id={{ subject.id }}">Edit</a>
+    <form method="post" action="/teacher/subjects/{{ subject.id }}/status/{{ 'deactivate' if subject.is_active else 'activate' }}" {% if subject.is_active %}data-confirm="Deactivate this subject? New students cannot request enrollment, but students already enrolled will keep access to its presentations."{% endif %}>
+      <button class="small-button {{ 'danger' if subject.is_active else '' }}" type="submit">{{ "Deactivate" if subject.is_active else "Activate" }}</button>
+    </form>
+  </div></td></tr>{% endfor %}
+  </tbody></table></div>{% else %}<div class="empty"><h2>No subjects yet</h2><p>Create a subject above.</p></div>{% endif %}
+</section>
+{% endblock %}

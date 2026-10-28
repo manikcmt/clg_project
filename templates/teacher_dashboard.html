@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Teacher Dashboard · StudentDesk{% endblock %}
+{% block content %}
+<div class="dashboard-layout"><div class="dashboard-main">
+  <div class="page-heading"><div><p class="eyebrow">TEACHER DASHBOARD</p><h1>Welcome, {{ teacher.name }}</h1><p class="muted">Manage your profile, view students across departments, and handle subject enrollment.</p></div></div>
+  <section class="dashboard-stats teacher-stats">
+    <div class="count-card"><span class="count-icon">▦</span><strong class="count-number">{{ student_count }}</strong><p class="muted">Approved students</p></div>
+    <div class="count-card"><span class="count-icon">＋</span><strong class="count-number">{{ subject_count }}</strong><p class="muted">Your subjects</p></div>
+    <div class="count-card"><span class="count-icon">✓</span><strong class="count-number">{{ pending_enrollments }}</strong><p class="muted">Enrollment requests</p></div>
+  </section>
+  <section class="dashboard-actions">
+    <a class="quick-card" href="/teacher/profile"><span>PROFILE</span><h2>My profile</h2><p>Manage personal info, qualifications, training, and employment history.</p></a>
+    <a class="quick-card" href="/teacher/students"><span>DIRECTORY</span><h2>All department students</h2><p>View approved student profiles across departments.</p></a>
+    <a class="quick-card" href="/teacher/subjects"><span>SUBJECTS</span><h2>Enroll now subject</h2><p>Create and manage department subjects.</p></a>
+    <a class="quick-card" href="/teacher/enrollments"><span>ENROLLMENT</span><h2>Enroll student</h2><p>Review student requests for your subjects.</p></a>
+    <a class="quick-card" href="/teacher/presentations"><span>DAILY LESSONS</span><h2>Daily presentations</h2><p>Upload dated PDF or PowerPoint presentations for enrolled students.</p></a>
+  </section>
+</div></div>
+{% endblock %}
