@@ -48,38 +48,30 @@ logger = logging.getLogger(__name__)
 MAX_EXCEL_SIZE = 10 * 1024 * 1024
 DEPARTMENTS = [
     "Civil Technology",
-    "Electrical Technology",
-    "Mechanical Technology",
-    "Power Technology",
     "Computer Science and Technology",
-    "Environmental Technology",
-    "RAC Technology",
-    "Construction Technology",
-    "Electronics Technology",
+    "Electrical Technology",
+    "Food Technology",
+     "RAC Technology",
+    "Tourism and Hospitality Management",
 ]
 DEPARTMENT_LOGOS = {
     "Civil Technology": "CIV",
-    "Electrical Technology": "ELC",
-    "Mechanical Technology": "MEC",
-    "Power Technology": "PWR",
     "Computer Science and Technology": "CST",
-    "Environmental Technology": "ENV",
+    "Electrical Technology": "ELC",
+    "Food Technology": "FOOD",
     "RAC Technology": "RAC",
-    "Construction Technology": "CON",
-    "Electronics Technology": "ECT",
+    "Tourism and Hospitality Management": "THM",
 }
 TEACHER_DESIGNATION_ORDER = tuple(
     designation.casefold() for designation in TEACHER_DESIGNATIONS
 )
 LEGACY_DEPARTMENT_NAMES = {
     "Civil": "Civil Technology",
+    "Computer": "Computer Science and Technology",
     "Electrical": "Electrical Technology",
-    "Mechanical": "Mechanical Technology",
-    "Power": "Power Technology",
-    "Environmental": "Environmental Technology",
+    "Food": "Food Technology",
     "RAC": "RAC Technology",
-    "Construction": "Construction Technology",
-    "Electronics": "Electronics Technology",
+    "Tourism": "Tourism and Hospitality Management",   
 }
 SEMESTERS = [
     f"{number}{'st' if number == 1 else 'nd' if number == 2 else 'rd' if number == 3 else 'th'} Semester"
